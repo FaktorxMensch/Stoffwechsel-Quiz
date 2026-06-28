@@ -25,6 +25,24 @@ const choices = ref<{ text: string; correct: boolean }[]>([])
 const chosen = ref<number | null>(null)
 const cofactorPrompt = ref('')
 
+// Erkunden-Modus: ausgewählter Metabolit (zeigt Strukturformel + Abzweige)
+const selectedNodeId = ref<string | null>(null)
+const selectedNode = computed(() => pathway.value?.nodes.find((n) => n.id === selectedNodeId.value) ?? null)
+
+// häufige Stoffwechselwege als Distraktoren für Abzweig-Fragen
+const COMMON_PATHWAYS = [
+  'Fettsäuresynthese',
+  'Gluconeogenese',
+  'Glykolyse',
+  'Aminosäuren',
+  'Häm-Synthese',
+  'Cholesterinsynthese',
+  'Glykogensynthese',
+  'Pentosephosphatweg',
+  'Harnstoffzyklus',
+  'Ketonkörper',
+]
+
 function reactionOf(item: QuizItem): Reaction | undefined {
   return pathway.value?.reactions.find((r) => r.id === item.reactionId)
 }
@@ -81,7 +99,35 @@ function nextQuestion() {
       { text: target, correct: true },
       ...distractors.map((n) => ({ text: n, correct: false })),
     ])
+  } else if (item.type === 'structure') {
+    const node = curNode()!
+    const others = shuffle(pathway.value!.nodes.filter((n) => n.id !== node.id).map((n) => n.name)).slice(0, 3)
+    choices.value = shuffle([
+      { text: node.name, correct: true },
+      ...others.map((n) => ({ text: n, correct: false })),
+    ])
+  } else if (item.type === 'branch') {
+    const node = curNode()!
+    const own = node.branches!.map((b) => b.to)
+    const target = own[Math.floor(Math.random() * own.length)]
+    const distractors = shuffle(COMMON_PATHWAYS.filter((pw) => !own.includes(pw))).slice(0, 3)
+    choices.value = shuffle([
+      { text: target, correct: true },
+      ...distractors.map((n) => ({ text: n, correct: false })),
+    ])
+  } else if (item.type === 'energy') {
+    const r = reactionOf(item)!
+    const others = [...new Set(pathway.value!.reactions.map((rr) => rr.deltaG).filter((g) => g !== undefined && g !== r.deltaG))] as number[]
+    const distractors = shuffle(others).slice(0, 3)
+    choices.value = shuffle([
+      { text: fmtG(r.deltaG!), correct: true },
+      ...distractors.map((g) => ({ text: fmtG(g), correct: false })),
+    ])
   }
+}
+
+function fmtG(g: number): string {
+  return `${g > 0 ? '+' : ''}${g} kcal/mol`
 }
 
 function startQuiz() {
@@ -97,6 +143,11 @@ function onPick(p: {
   nx: number
   ny: number
 }) {
+  // Erkunden: Metabolit auswählen -> Strukturformel/Abzweige anzeigen
+  if (mode.value === 'explore') {
+    selectedNodeId.value = p.nodeDist <= HIT ? p.nearestNodeId : null
+    return
+  }
   if (answered.value || !cur.value) return
   const item = cur.value
   if (item.type === 'locate-node') {
@@ -131,26 +182,41 @@ function choose(i: number) {
   answered.value = true
   wasCorrect.value = ok
   record(cur.value!.id, ok)
+  const t = cur.value!.type
   const r = curReaction()
-  revealReactionId.value = r?.id ?? null
-  if (cur.value!.type === 'direction') {
+  const node = curNode()
+  if (t === 'direction') {
+    revealReactionId.value = r?.id ?? null
     feedback.value = `${r?.enzyme}: ${r?.reversible ? 'reversibel' : 'irreversibel (nur eine Richtung)'}.${r?.note ? ' ' + r.note : ''}`
-  } else {
+  } else if (t === 'cofactor') {
+    revealReactionId.value = r?.id ?? null
     const outs = r!.cofactors.filter((c) => c.dir === 'out').map((c) => c.name).join(', ') || '–'
     const insL = r!.cofactors.filter((c) => c.dir === 'in').map((c) => c.name).join(', ') || '–'
     feedback.value = `${r?.enzyme}: verbraucht ${insL}; frei wird ${outs}.`
+  } else if (t === 'structure') {
+    feedback.value = `Das ist ${node?.name} (${node?.cAtoms} C-Atome).`
+  } else if (t === 'branch') {
+    const all = node!.branches!.map((b) => `${b.to}${b.note ? ` (${b.note})` : ''}`).join('; ')
+    feedback.value = `${node?.name} → ${all}`
+  } else if (t === 'energy') {
+    revealReactionId.value = r?.id ?? null
+    const g = r!.deltaG!
+    feedback.value = `${r?.enzyme}: ΔG°′ = ${fmtG(g)} (${g < 0 ? 'exergon' : g > 0 ? 'endergon' : 'nahe 0'}).`
   }
 }
 
 // Canvas-Props je nach Modus/Fragetyp
 const canvasBind = computed(() => {
   if (mode.value === 'explore' || !cur.value) {
+    // Erkunden: alles sichtbar, Knoten anklickbar (Auswahl zeigt Details)
     return {
       hideNodeNames: false,
       hideEnzymes: false,
       hideCofactors: false,
-      interactive: false,
-      highlightIds: [] as string[],
+      hideDeltaG: false,
+      hideBranches: false,
+      interactive: true,
+      highlightIds: selectedNodeId.value ? [selectedNodeId.value] : [],
       revealNodeIds: [] as string[],
       revealReactionId: null as string | null,
       markers: [] as { x: number; y: number; color: string }[],
@@ -158,14 +224,16 @@ const canvasBind = computed(() => {
   }
   const t = cur.value.type
   const isClick = t === 'locate-node' || t === 'locate-enzyme'
-  const r = curReaction()
+  const nodeId = cur.value.nodeId
   return {
     hideNodeNames: t === 'locate-node' && !answered.value,
     hideEnzymes: t === 'locate-enzyme' && !answered.value,
     hideCofactors: t === 'locate-enzyme' && !answered.value,
+    hideDeltaG: t === 'energy' && !answered.value, // ΔG nicht verraten
+    hideBranches: t === 'branch' && !answered.value, // Abzweige nicht verraten
     interactive: isClick && !answered.value,
-    highlightIds: answered.value && cur.value.nodeId ? [cur.value.nodeId] : [],
-    revealNodeIds: answered.value && cur.value.nodeId ? [cur.value.nodeId] : [],
+    highlightIds: answered.value && nodeId ? [nodeId] : [],
+    revealNodeIds: answered.value && nodeId ? [nodeId] : [],
     revealReactionId: revealReactionId.value,
     markers: clickMarker.value ? [clickMarker.value] : [],
   }
@@ -179,8 +247,16 @@ const promptText = computed(() => {
     return `Welche Reaktion katalysiert „${curReaction()?.enzyme}“? Klicke darauf.`
   if (item.type === 'direction')
     return `${reactionLabel(pathway.value, curReaction()!)} – in welche Richtung läuft die Reaktion (${curReaction()?.enzyme})?`
+  if (item.type === 'structure') return 'Welcher Metabolit hat diese Strukturformel?'
+  if (item.type === 'branch') return `In welchen Stoffwechselweg kann „${curNode()?.name}“ übergehen?`
+  if (item.type === 'energy')
+    return `Wie groß ist ΔG°′ für „${curReaction()?.enzyme}“ (${reactionLabel(pathway.value, curReaction()!)})?`
   return `${curReaction()?.enzyme} (${reactionLabel(pathway.value, curReaction()!)}): ${cofactorPrompt.value}`
 })
+
+const quizStructure = computed(() =>
+  cur.value?.type === 'structure' ? (curNode()?.structure ?? null) : null,
+)
 </script>
 
 <template>
@@ -221,6 +297,8 @@ const promptText = computed(() => {
         <h2>Frage</h2>
         <h3>{{ promptText }}</h3>
 
+        <pre v-if="quizStructure" class="formula">{{ quizStructure }}</pre>
+
         <div v-if="choices.length" class="choices" style="margin-top: 10px">
           <button
             v-for="(c, i) in choices"
@@ -253,6 +331,27 @@ const promptText = computed(() => {
           </p>
           <p class="small">{{ pathway.summary }}</p>
           <p class="small"><span class="muted">Ort:</span> {{ pathway.location }}</p>
+          <p class="muted small">Tipp: Metabolit in der Karte anklicken für Strukturformel & Abzweige.</p>
+        </div>
+
+        <!-- Ausgewählter Metabolit -->
+        <div v-if="selectedNode" class="card">
+          <h2>{{ selectedNode.name }}</h2>
+          <div style="display: flex; gap: 16px; align-items: flex-start">
+            <pre v-if="selectedNode.structure" class="formula">{{ selectedNode.structure }}</pre>
+            <div class="small">
+              <p v-if="selectedNode.cAtoms"><span class="muted">C-Atome:</span> {{ selectedNode.cAtoms }}</p>
+              <template v-if="selectedNode.branches?.length">
+                <p class="muted" style="margin-bottom: 4px">Geht über in:</p>
+                <p v-for="b in selectedNode.branches" :key="b.to" style="margin: 0 0 4px">
+                  <span style="color: var(--accent)">→ {{ b.to }}</span>
+                  <span v-if="b.note" class="muted"><br />{{ b.note }}</span>
+                </p>
+              </template>
+              <p v-else class="muted">Kein Abzweig in andere Wege.</p>
+              <p v-if="selectedNode.note" class="uncertain small">{{ selectedNode.note }}</p>
+            </div>
+          </div>
         </div>
 
         <div class="card">
@@ -262,6 +361,7 @@ const promptText = computed(() => {
               <tr>
                 <th>Enzym</th>
                 <th>Richtung</th>
+                <th>ΔG°′</th>
                 <th>Bilanz</th>
               </tr>
             </thead>
@@ -275,6 +375,13 @@ const promptText = computed(() => {
                   </template>
                 </td>
                 <td>{{ r.reversible ? '⇌' : '→' }}</td>
+                <td
+                  :class="r.deltaG === undefined ? 'muted' : r.deltaG < 0 ? 'cof-in' : r.deltaG > 0 ? 'cof-out' : 'muted'"
+                  style="white-space: nowrap"
+                >
+                  <template v-if="r.deltaG !== undefined">{{ r.deltaG > 0 ? '+' : '' }}{{ r.deltaG }}</template>
+                  <template v-else>–</template>
+                </td>
                 <td>
                   <span v-for="c in r.cofactors.filter((c) => c.dir === 'in')" :key="c.name" class="cof-in"
                     >+{{ c.name }} </span
@@ -296,8 +403,8 @@ const promptText = computed(() => {
             <a :href="s" target="_blank" rel="noopener">{{ s }}</a>
           </p>
           <p class="muted small">
-            <span class="uncertain">*</span> markierte Angaben (v.&nbsp;a. ΔG-Werte, Energieausbeute)
-            bitte selbst gegenprüfen.
+            ΔG°′-Werte (kcal/mol) gerundet nach Lehrbuch (Lippincott). Mit <span class="uncertain">*</span>
+            markierte Angaben (z.&nbsp;B. ATP-Energieausbeute) bitte selbst gegenprüfen.
           </p>
         </div>
       </template>

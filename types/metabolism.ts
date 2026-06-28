@@ -17,6 +17,13 @@ export type ReactionTag =
   | 'isomerisierung'
   | 'transaminierung'
 
+/** Abzweig: Metabolit verlässt den Weg in einen anderen Stoffwechsel. */
+export interface Branch {
+  to: string // Zielweg / Verwendung, z.B. "Fettsäuresynthese"
+  note?: string
+  uncertain?: boolean
+}
+
 /** Ein Knoten auf der 2D-Karte (Metabolit oder Hub). Koordinaten normalisiert 0..1. */
 export interface MapNode {
   id: string
@@ -24,6 +31,12 @@ export interface MapNode {
   x: number
   y: number
   kind?: 'metabolite' | 'hub'
+  /** Kondensierte Strukturformel (mehrzeilig, in Monospace dargestellt). */
+  structure?: string
+  /** Anzahl C-Atome (wichtig für Decarboxylierungen). */
+  cAtoms?: number
+  /** Abzweige in andere Stoffwechselwege. */
+  branches?: Branch[]
   /** Markierung für manuell zu prüfende Angaben. */
   uncertain?: boolean
   note?: string
@@ -40,7 +53,7 @@ export interface Reaction {
   tags: ReactionTag[]
   /** Position des Enzym-Labels auf der Karte (normalisiert). Sonst Mittelpunkt. */
   labelPos?: { x: number; y: number }
-  /** ΔG°' in kJ/mol falls bekannt; oft quellenabhängig -> uncertain markieren. */
+  /** ΔG°' in kcal/mol (Lehrbuch-Werte, gerundet). */
   deltaG?: number
   uncertain?: boolean
   note?: string

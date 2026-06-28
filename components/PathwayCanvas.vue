@@ -12,6 +12,8 @@ const props = withDefaults(
     hideNodeNames?: boolean
     hideEnzymes?: boolean
     hideCofactors?: boolean
+    hideDeltaG?: boolean
+    hideBranches?: boolean
     markers?: { x: number; y: number; color: string }[]
     interactive?: boolean
   }>(),
@@ -19,6 +21,8 @@ const props = withDefaults(
     highlightIds: () => [],
     revealNodeIds: () => [],
     revealReactionId: null,
+    hideDeltaG: false,
+    hideBranches: false,
     markers: () => [],
     interactive: false,
   },
@@ -156,12 +160,22 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
       }
     }
 
+    // ΔG-Wert unter dem Enzym (grün = exergon, rot = endergon)
+    const hasDeltaG = !props.hideEnzymes && !props.hideDeltaG && r.deltaG !== undefined
+    if (hasDeltaG) {
+      const g = r.deltaG as number
+      ctx.font = `600 11px ui-sans-serif, system-ui, sans-serif`
+      ctx.textAlign = 'center'
+      ctx.fillStyle = g < 0 ? C.cofIn : g > 0 ? C.cofOut : C.muted
+      ctx.fillText(`ΔG ${g > 0 ? '+' : ''}${g} kcal`, lp.x, lp.y + 15)
+    }
+
     if (!props.hideCofactors && r.cofactors.length) {
       ctx.font = `500 11px ui-sans-serif, system-ui, sans-serif`
       ctx.textAlign = 'center'
       const ins = r.cofactors.filter((c) => c.dir === 'in').map((c) => `+ ${c.name}`)
       const outs = r.cofactors.filter((c) => c.dir === 'out').map((c) => `→ ${c.name}`)
-      const baseY = lp.y + 16
+      const baseY = lp.y + (hasDeltaG ? 30 : 16)
       ctx.fillStyle = C.cofIn
       ctx.fillText(ins.join('  '), lp.x, baseY)
       ctx.fillStyle = C.cofOut
@@ -207,6 +221,48 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
     }
   }
 
+  // Abzweige in andere Stoffwechselwege (gestrichelte Pfeile nach außen)
+  if (!props.hideBranches) {
+    for (const n of p.nodes) {
+      if (!n.branches?.length) continue
+      const px = nodePx.get(n.id)!
+      let dx = px.x - cpx.x
+      let dy = px.y - cpx.y
+      const dl = Math.hypot(dx, dy) || 1
+      dx /= dl
+      dy /= dl
+      const baseAng = Math.atan2(dy, dx)
+      const len = side * 0.135
+      n.branches.forEach((b, i) => {
+        const ang = baseAng + (i - (n.branches!.length - 1) / 2) * 0.5
+        const sx = px.x + Math.cos(ang) * 22
+        const sy = px.y + Math.sin(ang) * 22
+        const ex = px.x + Math.cos(ang) * len
+        const ey = px.y + Math.sin(ang) * len
+        ctx.strokeStyle = C.accent
+        ctx.lineWidth = 1.6
+        ctx.setLineDash([5, 4])
+        ctx.beginPath()
+        ctx.moveTo(sx, sy)
+        ctx.lineTo(ex, ey)
+        ctx.stroke()
+        ctx.setLineDash([])
+        arrowHead(ctx, ex, ey, ang, 7, C.accent)
+        ctx.font = `600 11px ui-sans-serif, system-ui, sans-serif`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        const tw = ctx.measureText(b.to).width
+        const lx = ex + Math.cos(ang) * (tw / 2 + 6)
+        const ly = ey + Math.sin(ang) * 10
+        roundRect(ctx, lx - tw / 2 - 6, ly - 9, tw + 12, 18, 5)
+        ctx.fillStyle = 'rgba(110,168,254,0.16)'
+        ctx.fill()
+        ctx.fillStyle = C.accent
+        ctx.fillText(b.to, lx, ly)
+      })
+    }
+  }
+
   // Klick-Marker
   for (const m of props.markers) {
     const px = toPx(m.x, m.y)
@@ -241,6 +297,8 @@ watch(
     props.hideNodeNames,
     props.hideEnzymes,
     props.hideCofactors,
+    props.hideDeltaG,
+    props.hideBranches,
     props.markers,
   ],
   () => render(),

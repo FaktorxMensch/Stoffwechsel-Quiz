@@ -1,6 +1,13 @@
 import type { Pathway, Reaction } from '~/types/metabolism'
 
-export type QuizType = 'locate-node' | 'locate-enzyme' | 'direction' | 'cofactor'
+export type QuizType =
+  | 'locate-node'
+  | 'locate-enzyme'
+  | 'direction'
+  | 'cofactor'
+  | 'structure'
+  | 'branch'
+  | 'energy'
 
 export interface QuizItem {
   id: string // stabiler Schlüssel für den Fortschritt
@@ -15,12 +22,21 @@ export function buildQuizItems(p: Pathway): QuizItem[] {
   const items: QuizItem[] = []
   for (const n of p.nodes) {
     items.push({ id: `${p.id}:node:${n.id}`, type: 'locate-node', pathwayId: p.id, nodeId: n.id })
+    if (n.structure) {
+      items.push({ id: `${p.id}:struct:${n.id}`, type: 'structure', pathwayId: p.id, nodeId: n.id })
+    }
+    if (n.branches?.length) {
+      items.push({ id: `${p.id}:branch:${n.id}`, type: 'branch', pathwayId: p.id, nodeId: n.id })
+    }
   }
   for (const r of p.reactions) {
     items.push({ id: `${p.id}:enzyme:${r.id}`, type: 'locate-enzyme', pathwayId: p.id, reactionId: r.id })
     items.push({ id: `${p.id}:dir:${r.id}`, type: 'direction', pathwayId: p.id, reactionId: r.id })
     if (r.cofactors.length) {
       items.push({ id: `${p.id}:cof:${r.id}`, type: 'cofactor', pathwayId: p.id, reactionId: r.id })
+    }
+    if (r.deltaG !== undefined) {
+      items.push({ id: `${p.id}:energy:${r.id}`, type: 'energy', pathwayId: p.id, reactionId: r.id })
     }
   }
   return items

@@ -260,3 +260,18 @@ table.rx th {
   background: rgba(240, 96, 122, 0.12);
   border: 1px solid var(--wrong);
 }
+
+pre.formula {
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.15;
+  letter-spacing: 0.5px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 10px 0 0;
+  display: inline-block;
+  text-align: center;
+  color: var(--text);
+}
