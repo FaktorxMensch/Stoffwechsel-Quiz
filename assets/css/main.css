@@ -1,0 +1,262 @@
+:root {
+  --bg: #0f1420;
+  --panel: #161d2e;
+  --panel-2: #1b2336;
+  --border: #29334d;
+  --text: #e8edf7;
+  --muted: #8b97ad;
+  --accent: #6ea8fe;
+  --accent-2: #52d273;
+  --warn: #ffd479;
+  --wrong: #f0607a;
+  --cof-in: #7fd1b9;
+  --cof-out: #f0907a;
+  --radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#__nuxt {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  flex-shrink: 0;
+}
+.header h1 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.header .spacer {
+  flex: 1;
+}
+.header .crumb {
+  color: var(--muted);
+  font-size: 14px;
+}
+.header .crumb b {
+  color: var(--text);
+}
+
+.btn {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 7px 14px;
+  border-radius: 8px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.btn:hover {
+  border-color: var(--accent);
+}
+.btn.primary {
+  background: var(--accent);
+  color: #0b1020;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn.ghost {
+  background: transparent;
+}
+
+select.profile {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 14px;
+  padding: 14px;
+  flex: 1;
+  min-height: 0;
+}
+.stage {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-height: 0;
+  overflow: hidden;
+}
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  overflow-y: auto;
+}
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.card h2 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+}
+.card h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.uncertain {
+  color: var(--warn);
+}
+.cof-in {
+  color: var(--cof-in);
+}
+.cof-out {
+  color: var(--cof-out);
+}
+
+.mini-map {
+  height: 220px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.progress {
+  height: 8px;
+  border-radius: 8px;
+  background: var(--panel-2);
+  overflow: hidden;
+}
+.progress > div {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 13px;
+}
+
+table.rx {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table.rx th,
+table.rx td {
+  text-align: left;
+  padding: 6px 6px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+table.rx th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.net-chip {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  margin-bottom: 6px;
+  cursor: grab;
+}
+.net-chip b {
+  color: var(--accent);
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.choices button {
+  text-align: left;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+.choices button:hover {
+  border-color: var(--accent);
+}
+.choices button.correct {
+  border-color: var(--accent-2);
+  background: rgba(82, 210, 115, 0.12);
+}
+.choices button.wrong {
+  border-color: var(--wrong);
+  background: rgba(240, 96, 122, 0.12);
+}
+
+.feedback {
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+.feedback.ok {
+  background: rgba(82, 210, 115, 0.12);
+  border: 1px solid var(--accent-2);
+}
+.feedback.no {
+  background: rgba(240, 96, 122, 0.12);
+  border: 1px solid var(--wrong);
+}

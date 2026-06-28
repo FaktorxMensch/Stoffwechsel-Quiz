@@ -1,0 +1,20 @@
+// Farbpalette für Canvas (CSS-Variablen greifen im Canvas nicht).
+export const C = {
+  bg: '#0f1420',
+  panel: '#161d2e',
+  grid: '#1c2740',
+  node: '#1f2940',
+  nodeBorder: '#3a4a6e',
+  nodeText: '#e8edf7',
+  edge: '#5b6a8c',
+  edgeStrong: '#8aa0d0',
+  enzyme: '#ffd479',
+  enzymeBg: 'rgba(40,33,12,0.85)',
+  cofIn: '#7fd1b9',
+  cofOut: '#f0907a',
+  accent: '#6ea8fe',
+  correct: '#52d273',
+  wrong: '#f0607a',
+  muted: '#8b97ad',
+  ring: 'rgba(110,168,254,0.12)',
+}
