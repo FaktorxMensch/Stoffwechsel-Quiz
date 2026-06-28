@@ -1,0 +1,24 @@
+# Nixpacks-Deployment für das Nuxt-3-Projekt (SSR / Nitro node-server).
+# Yarn 4 wird über Corepack bereitgestellt (nicht über das Nix-Paket "yarn",
+# das wäre Yarn Classic 1.x und würde die Corepack-Shim überschatten).
+
+[phases.setup]
+# Node 22 (bringt Corepack mit). Version wird über das Nix-Paket gepinnt,
+# nicht über eine NODE_VERSION-Variable – die liest Nixpacks hier nicht aus.
+nixPkgs = ['nodejs_22']
+
+[phases.install]
+cmds = [
+    "corepack enable",
+    "corepack prepare yarn@4.12.0 --activate",
+    "yarn install --immutable",
+]
+
+[phases.build]
+cmds = ["yarn build"]
+
+[start]
+cmd = "node .output/server/index.mjs"
+
+[variables]
+NODE_ENV = "production"
