@@ -2,10 +2,16 @@
 # Yarn 4 wird über Corepack bereitgestellt (nicht über das Nix-Paket "yarn",
 # das wäre Yarn Classic 1.x und würde die Corepack-Shim überschatten).
 
-[phases.setup]
+# [phases.setup]
 # Node 22 (bringt Corepack mit). Version wird über das Nix-Paket gepinnt,
 # nicht über eine NODE_VERSION-Variable – die liest Nixpacks hier nicht aus.
-nixPkgs = ['nodejs_22']
+# nixPkgs = ['nodejs_22']
+[phases.setup]
+nixPkgs = ['nodejs', 'yarn']
+
+[variables]
+NODE_VERSION = "25"
+YARN_VERSION = "4.12.0"
 
 [phases.install]
 cmds = [
