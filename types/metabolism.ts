@@ -14,6 +14,7 @@ export type ReactionTag =
   | 'hydratisierung' // Wasseranlagerung
   | 'dehydratisierung' // Wasserabspaltung
   | 'kondensation'
+  | 'spaltung' // Aldolspaltung o.ä.
   | 'isomerisierung'
   | 'transaminierung'
 

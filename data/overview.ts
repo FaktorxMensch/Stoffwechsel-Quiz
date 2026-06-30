@@ -47,7 +47,7 @@ export const overviewEdges: OverviewEdge[] = [
   { id: 'e-glykogen-synthese', name: 'Glykogen-Synthese', from: 'g6p', to: 'glykogen', reversible: false, status: 'geplant' },
   { id: 'e-glucose-g6p', name: 'Hexokinase', from: 'glucose', to: 'g6p', reversible: true, status: 'geplant' },
   { id: 'e-ppw', name: 'Pentosephosphatweg', from: 'g6p', to: 'ribose5p', reversible: false, status: 'geplant' },
-  { id: 'e-glykolyse', name: 'Glykolyse', from: 'g6p', to: 'pyruvat', reversible: false, status: 'geplant' },
+  { id: 'e-glykolyse', name: 'Glykolyse', from: 'g6p', to: 'pyruvat', reversible: false, pathwayId: 'glykolyse', status: 'fertig' },
   { id: 'e-gluconeogenese', name: 'Gluconeogenese', from: 'pyruvat', to: 'g6p', reversible: false, status: 'geplant' },
   { id: 'e-laktat', name: 'Laktat-Gärung', from: 'pyruvat', to: 'lactat', reversible: true, status: 'geplant' },
   { id: 'e-pdh', name: 'Pyruvat-Dehydrogenase', from: 'pyruvat', to: 'acetyl-coa', reversible: false, status: 'geplant' },

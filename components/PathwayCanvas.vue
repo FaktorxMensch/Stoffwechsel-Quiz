@@ -52,11 +52,37 @@ type Geom = {
 }
 let geom: Geom | null = null
 
+type Pt = { x: number; y: number }
+
 function center() {
   const ns = props.pathway.nodes
   const cx = ns.reduce((a, n) => a + n.x, 0) / ns.length
   const cy = ns.reduce((a, n) => a + n.y, 0) / ns.length
   return { cx, cy }
+}
+
+function strongFlux(r: Pathway['reactions'][number]) {
+  return !r.reversible || Math.abs(r.deltaG ?? 0) >= 5
+}
+
+function strokeReactionPath(
+  ctx: CanvasRenderingContext2D,
+  a: Pt,
+  ctrl: [number, number],
+  b: Pt,
+  style: { color: string; width: number; alpha?: number },
+) {
+  ctx.save()
+  ctx.globalAlpha = style.alpha ?? 1
+  ctx.strokeStyle = style.color
+  ctx.lineWidth = style.width
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  ctx.beginPath()
+  ctx.moveTo(a.x, a.y)
+  ctx.quadraticCurveTo(ctrl[0], ctrl[1], b.x, b.y)
+  ctx.stroke()
+  ctx.restore()
 }
 
 function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
@@ -76,14 +102,18 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const { cx, cy } = center()
   const cpx = toPx(cx, cy)
 
-  // Titel in der Mitte (Orientierung)
-  ctx.save()
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.fillStyle = 'rgba(255,255,255,0.05)'
-  ctx.font = `700 ${Math.round(side * 0.06)}px ui-sans-serif, system-ui, sans-serif`
-  ctx.fillText(p.name, cpx.x, cpx.y)
-  ctx.restore()
+  const isLinear = p.layout === 'linear'
+
+  // Titel in der Mitte (Orientierung) – nur bei Kreis-Layout
+  if (!isLinear) {
+    ctx.save()
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillStyle = 'rgba(255,255,255,0.05)'
+    ctx.font = `700 ${Math.round(side * 0.06)}px ui-sans-serif, system-ui, sans-serif`
+    ctx.fillText(p.name, cpx.x, cpx.y)
+    ctx.restore()
+  }
 
   const nodePx = new Map(p.nodes.map((n) => [n.id, toPx(n.x, n.y)]))
   const reactionGeom: Geom['reactions'] = []
@@ -93,32 +123,58 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
     const a = nodePx.get(r.from)
     const b = nodePx.get(r.to)
     if (!a || !b) continue
-    // Kontrollpunkt: Mitte nach außen vom Zentrum gewölbt -> sauberer Ring
     const mx = (a.x + b.x) / 2
     const my = (a.y + b.y) / 2
-    let nxv = mx - cpx.x
-    let nyv = my - cpx.y
-    const nl = Math.hypot(nxv, nyv) || 1
-    nxv /= nl
-    nyv /= nl
-    const bow = side * 0.05
-    const ctrl: [number, number] = [mx + nxv * bow, my + nyv * bow]
+    let nxv: number
+    let nyv: number
+    let ctrl: [number, number]
+    if (isLinear) {
+      // Linear: gerade Linie; Beschriftungsseite = Senkrechte (konsistent nach rechts)
+      const dx = b.x - a.x
+      const dy = b.y - a.y
+      const dl = Math.hypot(dx, dy) || 1
+      nxv = dy / dl
+      nyv = -dx / dl
+      if (nxv < 0) {
+        nxv = -nxv
+        nyv = -nyv
+      }
+      ctrl = [mx, my]
+    } else {
+      // Kreis: Kontrollpunkt nach außen vom Zentrum gewölbt -> sauberer Ring
+      let vx = mx - cpx.x
+      let vy = my - cpx.y
+      const nl = Math.hypot(vx, vy) || 1
+      vx /= nl
+      vy /= nl
+      nxv = vx
+      nyv = vy
+      const bow = side * 0.05
+      ctrl = [mx + nxv * bow, my + nyv * bow]
+    }
 
     const isRevealed = props.revealReactionId === r.id
-    ctx.strokeStyle = isRevealed ? C.accent : C.edge
-    ctx.lineWidth = isRevealed ? 4 : 2.2
-    ctx.beginPath()
-    ctx.moveTo(a.x, a.y)
-    ctx.quadraticCurveTo(ctrl[0], ctrl[1], b.x, b.y)
-    ctx.stroke()
+    const isStrong = strongFlux(r)
+    const lineWidth = isRevealed ? 5.5 : isStrong ? 4.8 : 2
+    const stroke = isRevealed ? C.accent : isStrong ? C.edgeStrong : C.edge
+
+    if (isStrong || isRevealed) {
+      strokeReactionPath(ctx, a, ctrl, b, {
+        color: isRevealed ? C.accent : C.enzyme,
+        width: lineWidth + 5,
+        alpha: isRevealed ? 0.16 : 0.1,
+      })
+    }
+    strokeReactionPath(ctx, a, ctrl, b, { color: stroke, width: lineWidth })
 
     // Pfeilspitzen (Richtung). Reversibel -> beidseitig.
-    const headColor = isRevealed ? C.accent : C.edgeStrong
-    const end = quadPoint([a.x, a.y], ctrl, [b.x, b.y], 0.9)
-    arrowHead(ctx, end.x, end.y, end.angle, 9, headColor)
+    const headColor = isRevealed ? C.accent : isStrong ? C.edgeStrong : C.edge
+    const headSize = isRevealed ? 13 : isStrong ? 12 : 8
+    const end = quadPoint([a.x, a.y], ctrl, [b.x, b.y], 0.84)
+    arrowHead(ctx, end.x, end.y, end.angle, headSize, headColor)
     if (r.reversible) {
-      const start = quadPoint([a.x, a.y], ctrl, [b.x, b.y], 0.1)
-      arrowHead(ctx, start.x, start.y, start.angle + Math.PI, 9, headColor)
+      const start = quadPoint([a.x, a.y], ctrl, [b.x, b.y], 0.16)
+      arrowHead(ctx, start.x, start.y, start.angle + Math.PI, headSize, headColor)
     }
 
     // Geometrie für Hittest
@@ -135,7 +191,7 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
     // Label weit nach außen schieben -> die Außen-Normalen divergieren und spreizen die Labels
     const labelOff = side * 0.085
     const lp = r.labelPos ? toPx(r.labelPos.x, r.labelPos.y) : { x: mid.x + nxv * labelOff, y: mid.y + nyv * labelOff }
-    if (!r.labelPos) {
+    if (!r.labelPos && !isLinear) {
       // Pol-nahe Labels (oben/unten, Normale fast senkrecht) horizontal auseinanderziehen
       const vert = 1 - Math.abs(nxv)
       lp.x += Math.sign(mid.x - cpx.x || 1) * side * 0.07 * vert
@@ -171,15 +227,53 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
     }
 
     if (!props.hideCofactors && r.cofactors.length) {
-      ctx.font = `500 11px ui-sans-serif, system-ui, sans-serif`
-      ctx.textAlign = 'center'
-      const ins = r.cofactors.filter((c) => c.dir === 'in').map((c) => `+ ${c.name}`)
-      const outs = r.cofactors.filter((c) => c.dir === 'out').map((c) => `→ ${c.name}`)
-      const baseY = lp.y + (hasDeltaG ? 30 : 16)
-      ctx.fillStyle = C.cofIn
-      ctx.fillText(ins.join('  '), lp.x, baseY)
-      ctx.fillStyle = C.cofOut
-      ctx.fillText(outs.join('  '), lp.x, baseY + 14)
+      const ins = r.cofactors.filter((c) => c.dir === 'in').map((c) => c.name)
+      const outs = r.cofactors.filter((c) => c.dir === 'out').map((c) => c.name)
+      const reach = side * 0.085 // Länge des gebogenen Cofaktor-Pfeils nach außen
+      // Linear: Cofaktoren auf die Gegenseite des Enzyms (links), sonst nach außen
+      const cofNx = isLinear ? -nxv : nxv
+      const cofNy = isLinear ? -nyv : nyv
+
+      // Gebogener Pfeil + Beschriftung; dir=-1 (Edukt rein), dir=+1 (Produkt raus)
+      const drawCofactor = (t: number, dir: number, names: string[], color: string) => {
+        if (!names.length) return
+        const P = quadPoint([a.x, a.y], ctrl, [b.x, b.y], t) // Punkt auf der Reaktionskurve
+        const tx = Math.cos(P.angle)
+        const ty = Math.sin(P.angle)
+        // Außen-Endpunkt: nach außen (Normale) + tangential in Flussrichtung versetzt
+        const ex = P.x + cofNx * reach + tx * dir * side * 0.045
+        const ey = P.y + cofNy * reach + ty * dir * side * 0.045
+        // Kontrollpunkt gerade nach außen -> schöne runde Kurve
+        const cxp = P.x + cofNx * reach * 0.5
+        const cyp = P.y + cofNy * reach * 0.5
+        ctx.strokeStyle = color
+        ctx.lineWidth = 1.6
+        ctx.beginPath()
+        if (dir < 0) {
+          // Edukt: vom Text außen in die Reaktionskurve hinein, Pfeilspitze auf der Kurve
+          ctx.moveTo(ex, ey)
+          ctx.quadraticCurveTo(cxp, cyp, P.x, P.y)
+          ctx.stroke()
+          arrowHead(ctx, P.x, P.y, Math.atan2(P.y - cyp, P.x - cxp), 6, color)
+        } else {
+          // Produkt: aus der Reaktionskurve nach außen, Pfeilspitze außen am Text
+          ctx.moveTo(P.x, P.y)
+          ctx.quadraticCurveTo(cxp, cyp, ex, ey)
+          ctx.stroke()
+          arrowHead(ctx, ex, ey, Math.atan2(ey - cyp, ex - cxp), 6, color)
+        }
+        // Beschriftung am Außen-Ende, mehrzeilig nach außen gestapelt
+        ctx.font = `500 11px ui-sans-serif, system-ui, sans-serif`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillStyle = color
+        names.forEach((nm, i) => {
+          ctx.fillText(nm, ex + cofNx * (9 + i * 13), ey + cofNy * (9 + i * 13))
+        })
+      }
+
+      drawCofactor(0.4, -1, ins, C.cofIn)
+      drawCofactor(0.6, 1, outs, C.cofOut)
     }
   }
 
@@ -226,12 +320,14 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
     for (const n of p.nodes) {
       if (!n.branches?.length) continue
       const px = nodePx.get(n.id)!
-      let dx = px.x - cpx.x
-      let dy = px.y - cpx.y
-      const dl = Math.hypot(dx, dy) || 1
-      dx /= dl
-      dy /= dl
-      const baseAng = Math.atan2(dy, dx)
+      let baseAng: number
+      if (isLinear) {
+        baseAng = Math.PI // Abzweige nach links (Enzyme stehen rechts)
+      } else {
+        const dx = px.x - cpx.x
+        const dy = px.y - cpx.y
+        baseAng = Math.atan2(dy, dx)
+      }
       const len = side * 0.135
       n.branches.forEach((b, i) => {
         const ang = baseAng + (i - (n.branches!.length - 1) / 2) * 0.5

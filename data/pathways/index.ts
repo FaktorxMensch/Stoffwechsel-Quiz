@@ -1,8 +1,10 @@
 import type { Pathway } from '~/types/metabolism'
 import { citratzyklus } from './citratzyklus'
+import { glykolyse } from './glykolyse'
 
 // Registry aller Stoffwechselwege. Neuen Weg hinzufügen: importieren + hier eintragen.
 export const pathways: Record<string, Pathway> = {
+  [glykolyse.id]: glykolyse,
   [citratzyklus.id]: citratzyklus,
 }
 
