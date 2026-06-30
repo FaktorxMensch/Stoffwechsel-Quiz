@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getPathway } from '~/data/pathways'
+import { getPathway, pathwayList } from '~/data/pathways'
 import { buildQuizItems, reactionLabel, type QuizItem } from '~/utils/quiz'
 import type { Reaction } from '~/types/metabolism'
 
@@ -254,6 +254,15 @@ const promptText = computed(() => {
   return `${curReaction()?.enzyme} (${reactionLabel(pathway.value, curReaction()!)}): ${cofactorPrompt.value}`
 })
 
+const entryExit = computed(() => {
+  const p = pathway.value
+  if (!p || !p.nodes.length) return ''
+  if (p.layout === 'linear') {
+    return `${p.nodes[0].name} → … → ${p.nodes[p.nodes.length - 1].name}`
+  }
+  return `Zyklus über ${p.nodes.length} Metabolite`
+})
+
 const quizStructure = computed(() =>
   cur.value?.type === 'structure' ? (curNode()?.structure ?? null) : null,
 )
@@ -270,12 +279,22 @@ const quizStructure = computed(() =>
     </div>
 
     <aside class="sidebar">
-      <!-- Orientierung: Mini-Übersicht -->
+      <!-- Orientierung -->
       <div class="card">
-        <h2>Wo bin ich?</h2>
-        <div class="mini-map">
-          <OverviewMap :active-pathway-id="pathway.id" compact @open="(pid) => router.push(`/pathway/${pid}`)" />
+        <h2>Orientierung</h2>
+        <div class="path-chips">
+          <button
+            v-for="p in pathwayList"
+            :key="p.id"
+            class="path-chip"
+            :class="{ active: p.id === pathway.id }"
+            @click="p.id !== pathway.id && router.push(`/pathway/${p.id}`)"
+          >
+            {{ p.name }}
+          </button>
         </div>
+        <p class="muted small" style="margin: 8px 0 0">{{ entryExit }}</p>
+        <NuxtLink to="/" class="small">↗ Gesamtübersicht</NuxtLink>
       </div>
 
       <!-- Modus-Umschalter -->
@@ -298,6 +317,9 @@ const quizStructure = computed(() =>
         <h3>{{ promptText }}</h3>
 
         <pre v-if="quizStructure" class="formula">{{ quizStructure }}</pre>
+        <p v-if="quizStructure?.includes('Ⓟ')" class="muted small" style="margin: 4px 0 0">
+          Ⓟ = Phosphatgruppe (–PO₃²⁻)
+        </p>
 
         <div v-if="choices.length" class="choices" style="margin-top: 10px">
           <button
@@ -349,6 +371,7 @@ const quizStructure = computed(() =>
                 </p>
               </template>
               <p v-else class="muted">Kein Abzweig in andere Wege.</p>
+              <p v-if="selectedNode.structure?.includes('Ⓟ')" class="muted">Ⓟ = Phosphatgruppe (–PO₃²⁻)</p>
               <p v-if="selectedNode.note" class="uncertain small">{{ selectedNode.note }}</p>
             </div>
           </div>

@@ -43,6 +43,10 @@ const emit = defineEmits<{
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
+// Ansicht: Zoom (Mausrad) + Pan (Ziehen). tx/ty in Bildschirm-Pixeln, scale dimensionslos.
+const view = reactive({ scale: 1, tx: 0, ty: 0 })
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
+
 // Geometrie der letzten Zeichnung (für Hittests). In CSS-Pixeln.
 type Geom = {
   toPx: (nx: number, ny: number) => { x: number; y: number }
@@ -89,6 +93,11 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.clearRect(0, 0, w, h)
   ctx.fillStyle = C.panel
   ctx.fillRect(0, 0, w, h)
+
+  // Zoom/Pan-Transform (Hintergrund bleibt im Bildschirmraum)
+  ctx.save()
+  ctx.translate(view.tx, view.ty)
+  ctx.scale(view.scale, view.scale)
 
   const side = Math.min(w, h)
   const ox = (w - side) / 2
@@ -373,6 +382,8 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
     ctx.stroke()
   }
 
+  ctx.restore()
+
   geom = {
     toPx,
     toNorm,
@@ -401,16 +412,81 @@ watch(
   { deep: true },
 )
 
-function onClick(ev: MouseEvent) {
+// Beim Wechsel des Stoffwechselwegs Zoom/Pan zurücksetzen
+watch(
+  () => props.pathway.id,
+  () => resetView(),
+)
+
+// Bildschirm- -> Welt-Koordinaten (Layout-Pixel vor der Zoom/Pan-Transform)
+function toWorld(sx: number, sy: number) {
+  return { x: (sx - view.tx) / view.scale, y: (sy - view.ty) / view.scale }
+}
+
+function zoomBy(factor: number, cx: number, cy: number) {
+  const newScale = clamp(view.scale * factor, 0.4, 8)
+  // Punkt unter dem Cursor festhalten
+  view.tx = cx - ((cx - view.tx) * newScale) / view.scale
+  view.ty = cy - ((cy - view.ty) * newScale) / view.scale
+  view.scale = newScale
+  render()
+}
+
+function resetView() {
+  view.scale = 1
+  view.tx = 0
+  view.ty = 0
+  render()
+}
+defineExpose({ resetView })
+
+function onWheel(ev: WheelEvent) {
+  ev.preventDefault()
+  const rect = canvasRef.value?.getBoundingClientRect()
+  if (!rect) return
+  zoomBy(ev.deltaY < 0 ? 1.12 : 1 / 1.12, ev.clientX - rect.left, ev.clientY - rect.top)
+}
+
+// Pan vs. Klick unterscheiden: bewegt sich die Maus kaum, gilt es als Klick (Auswahl/Quiz).
+let dragging = false
+let moved = false
+let startX = 0
+let startY = 0
+let startTx = 0
+let startTy = 0
+
+function onPointerDown(ev: PointerEvent) {
+  dragging = true
+  moved = false
+  startX = ev.clientX
+  startY = ev.clientY
+  startTx = view.tx
+  startTy = view.ty
+  ;(ev.target as HTMLElement).setPointerCapture?.(ev.pointerId)
+}
+
+function onPointerMove(ev: PointerEvent) {
+  if (!dragging) return
+  const dx = ev.clientX - startX
+  const dy = ev.clientY - startY
+  if (Math.abs(dx) + Math.abs(dy) > 4) moved = true
+  view.tx = startTx + dx
+  view.ty = startTy + dy
+  render()
+}
+
+function onPointerUp(ev: PointerEvent) {
+  if (!dragging) return
+  dragging = false
+  if (moved) return // war ein Pan, kein Klick
   if (!props.interactive || !geom || !canvasRef.value) return
   const rect = canvasRef.value.getBoundingClientRect()
-  const px = ev.clientX - rect.left
-  const py = ev.clientY - rect.top
+  const wpt = toWorld(ev.clientX - rect.left, ev.clientY - rect.top)
 
   let nearestNodeId = geom.nodes[0]?.id ?? ''
   let nodeDist = Infinity
   for (const n of geom.nodes) {
-    const d = dist(px, py, n.x, n.y)
+    const d = dist(wpt.x, wpt.y, n.x, n.y)
     if (d < nodeDist) {
       nodeDist = d
       nearestNodeId = n.id
@@ -421,7 +497,7 @@ function onClick(ev: MouseEvent) {
   let reactionDist = Infinity
   for (const r of geom.reactions) {
     for (const s of r.samples) {
-      const d = dist(px, py, s.x, s.y)
+      const d = dist(wpt.x, wpt.y, s.x, s.y)
       if (d < reactionDist) {
         reactionDist = d
         nearestReactionId = r.id
@@ -429,7 +505,7 @@ function onClick(ev: MouseEvent) {
     }
   }
 
-  const norm = geom.toNorm(px, py)
+  const norm = geom.toNorm(wpt.x, wpt.y)
   emit('pick', { nx: norm.x, ny: norm.y, nearestNodeId, nodeDist, nearestReactionId, reactionDist })
 }
 </script>
@@ -439,8 +515,18 @@ function onClick(ev: MouseEvent) {
     <canvas
       ref="canvasRef"
       :class="{ interactive }"
-      @click="onClick"
+      @wheel="onWheel"
+      @pointerdown="onPointerDown"
+      @pointermove="onPointerMove"
+      @pointerup="onPointerUp"
+      @pointerleave="onPointerUp"
     />
+    <div class="zoom-ctrl">
+      <button title="Vergrößern" @click="zoomBy(1.25, (canvasRef?.clientWidth ?? 0) / 2, (canvasRef?.clientHeight ?? 0) / 2)">+</button>
+      <button title="Verkleinern" @click="zoomBy(1 / 1.25, (canvasRef?.clientWidth ?? 0) / 2, (canvasRef?.clientHeight ?? 0) / 2)">−</button>
+      <button title="Ansicht zurücksetzen" @click="resetView">⟲</button>
+    </div>
+    <div class="zoom-hint">Mausrad: Zoom · Ziehen: Verschieben</div>
   </div>
 </template>
 
@@ -453,8 +539,42 @@ function onClick(ev: MouseEvent) {
 canvas {
   display: block;
   border-radius: 12px;
+  cursor: grab;
+  touch-action: none;
 }
-canvas.interactive {
-  cursor: crosshair;
+canvas:active {
+  cursor: grabbing;
+}
+.zoom-ctrl {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.zoom-ctrl button {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.zoom-ctrl button:hover {
+  border-color: var(--accent);
+}
+.zoom-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 12px;
+  font-size: 11px;
+  color: var(--muted);
+  pointer-events: none;
 }
 </style>
