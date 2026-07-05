@@ -52,39 +52,70 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const toPx = (nx: number, ny: number) => ({ x: pad + nx * (w - 2 * pad), y: pad + ny * (h - 2 * pad) })
   nodePx = new Map(overviewNodes.map((n) => [n.id, toPx(n.x, n.y)]))
 
-  // Kanten = Stoffwechselwege
+  // Gegenläufige Kanten (gleiches Knotenpaar) erkennen -> auseinanderziehen
+  const pairCount = new Map<string, number>()
+  for (const e of overviewEdges) {
+    const k = [e.from, e.to].sort().join('|')
+    pairCount.set(k, (pairCount.get(k) ?? 0) + 1)
+  }
+  const geomOf = (e: (typeof overviewEdges)[number]) => {
+    const a = nodePx.get(e.from)!
+    const b = nodePx.get(e.to)!
+    const key = [e.from, e.to].sort().join('|')
+    const twin = (pairCount.get(key) ?? 1) > 1
+    // Senkrechte anhand kanonischer Reihenfolge -> Zwillinge liegen auf gegenüberliegenden Seiten
+    const sign = e.from < e.to ? 1 : -1
+    const lo = sign > 0 ? a : b
+    const hi = sign > 0 ? b : a
+    const dl = Math.hypot(hi.x - lo.x, hi.y - lo.y) || 1
+    const perpx = -(hi.y - lo.y) / dl
+    const perpy = (hi.x - lo.x) / dl
+    const bow = twin ? 16 : 0
+    const mx = (a.x + b.x) / 2
+    const my = (a.y + b.y) / 2
+    const ctrl = { x: mx + perpx * bow * sign, y: my + perpy * bow * sign }
+    const lp = { x: mx + perpx * (bow + (twin ? 30 : 13)) * sign, y: my + perpy * (bow + (twin ? 30 : 13)) * sign }
+    return { a, b, ctrl, lp }
+  }
+
+  // Pass 1: Linien + Pfeilspitzen
   for (const e of overviewEdges) {
     const a = nodePx.get(e.from)
     const b = nodePx.get(e.to)
     if (!a || !b) continue
     const fertig = e.status === 'fertig'
+    const { ctrl } = geomOf(e)
     ctx.strokeStyle = fertig ? C.accent : C.grid
     ctx.lineWidth = fertig ? 2.6 : 1.6
     ctx.setLineDash(fertig ? [] : [5, 5])
     ctx.beginPath()
     ctx.moveTo(a.x, a.y)
-    ctx.lineTo(b.x, b.y)
+    ctx.quadraticCurveTo(ctrl.x, ctrl.y, b.x, b.y)
     ctx.stroke()
     ctx.setLineDash([])
 
-    const ang = Math.atan2(b.y - a.y, b.x - a.x)
-    const hx = b.x - Math.cos(ang) * 26
-    const hy = b.y - Math.sin(ang) * 26
-    arrowHead(ctx, hx, hy, ang, 8, fertig ? C.accent : C.edge)
-    if (e.reversible) arrowHead(ctx, a.x + Math.cos(ang) * 26, a.y + Math.sin(ang) * 26, ang + Math.PI, 8, fertig ? C.accent : C.edge)
+    const angEnd = Math.atan2(b.y - ctrl.y, b.x - ctrl.x)
+    arrowHead(ctx, b.x - Math.cos(angEnd) * 26, b.y - Math.sin(angEnd) * 26, angEnd, 8, fertig ? C.accent : C.edge)
+    if (e.reversible) {
+      const angStart = Math.atan2(a.y - ctrl.y, a.x - ctrl.x)
+      arrowHead(ctx, a.x - Math.cos(angStart) * 26, a.y - Math.sin(angStart) * 26, angStart, 8, fertig ? C.accent : C.edge)
+    }
+  }
 
-    // Label
-    const mx = (a.x + b.x) / 2
-    const my = (a.y + b.y) / 2
+  // Pass 2: Labels (über allen Linien, senkrecht neben die Kante versetzt)
+  for (const e of overviewEdges) {
+    if (!nodePx.get(e.from) || !nodePx.get(e.to)) continue
+    const fertig = e.status === 'fertig'
+    const { lp } = geomOf(e)
     ctx.font = `${fertig ? '600' : '500'} 11px ui-sans-serif, system-ui, sans-serif`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     const tw = ctx.measureText(e.name).width
-    roundRect(ctx, mx - tw / 2 - 6, my - 9, tw + 12, 18, 5)
-    ctx.fillStyle = fertig ? 'rgba(110,168,254,0.18)' : 'rgba(20,28,46,0.92)'
+    roundRect(ctx, lp.x - tw / 2 - 6, lp.y - 9, tw + 12, 18, 5)
+    ctx.fillStyle = fertig ? 'rgba(20,28,46,0.95)' : 'rgba(20,28,46,0.92)'
     ctx.fill()
     ctx.fillStyle = fertig ? C.edgeStrong : C.muted
-    ctx.fillText(e.name, mx, my)
+    ctx.fillText(e.name, lp.x, lp.y)
   }
 
   // Knoten

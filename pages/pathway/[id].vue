@@ -254,6 +254,22 @@ const promptText = computed(() => {
   return `${curReaction()?.enzyme} (${reactionLabel(pathway.value, curReaction()!)}): ${cofactorPrompt.value}`
 })
 
+// Abzweig-Ziele (Namen), die zu einem Detailweg führen -> klickbar zum Springen
+const branchNameToId = computed(() => {
+  const m = new Map<string, string>()
+  for (const p of pathwayList) {
+    m.set(p.name, p.id)
+    for (const a of p.aka ?? []) m.set(a, p.id)
+  }
+  return m
+})
+const linkableBranchNames = computed(() => [...branchNameToId.value.keys()])
+
+function onBranch(name: string) {
+  const id = branchNameToId.value.get(name)
+  if (id && id !== pathway.value?.id) router.push(`/pathway/${id}`)
+}
+
 const entryExit = computed(() => {
   const p = pathway.value
   if (!p || !p.nodes.length) return ''
@@ -275,7 +291,13 @@ const quizStructure = computed(() =>
 
   <div v-else class="layout">
     <div class="stage">
-      <PathwayCanvas :pathway="pathway" v-bind="canvasBind" @pick="onPick" />
+      <PathwayCanvas
+        :pathway="pathway"
+        v-bind="canvasBind"
+        :linkable-branches="linkableBranchNames"
+        @pick="onPick"
+        @branch="onBranch"
+      />
     </div>
 
     <aside class="sidebar">
@@ -366,7 +388,13 @@ const quizStructure = computed(() =>
               <template v-if="selectedNode.branches?.length">
                 <p class="muted" style="margin-bottom: 4px">Geht über in:</p>
                 <p v-for="b in selectedNode.branches" :key="b.to" style="margin: 0 0 4px">
-                  <span style="color: var(--accent)">→ {{ b.to }}</span>
+                  <a
+                    v-if="branchNameToId.get(b.to) && branchNameToId.get(b.to) !== pathway.id"
+                    href="#"
+                    @click.prevent="onBranch(b.to)"
+                    >→ {{ b.to }} ↗</a
+                  >
+                  <span v-else style="color: var(--accent)">→ {{ b.to }}</span>
                   <span v-if="b.note" class="muted"><br />{{ b.note }}</span>
                 </p>
               </template>

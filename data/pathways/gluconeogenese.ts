@@ -112,7 +112,7 @@ export const gluconeogenese: Pathway = {
       id: 'gn6',
       from: '13bpg',
       to: 'gap',
-      enzyme: 'Glycerinaldehyd-3-phosphat-Dehydrogenase',
+      enzyme: 'GAP-Dehydrogenase',
       reversible: true,
       tags: ['redox'],
       cofactors: [
@@ -120,6 +120,7 @@ export const gluconeogenese: Pathway = {
         { name: 'NAD+', dir: 'out' },
         { name: 'Pi', dir: 'out' },
       ],
+      note: 'Glycerinaldehyd-3-phosphat-Dehydrogenase (GAPDH) – Rückreaktion der Glykolyse.',
     },
     {
       id: 'gn7',

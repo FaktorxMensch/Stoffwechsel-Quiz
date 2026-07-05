@@ -23,23 +23,23 @@ export interface OverviewEdge {
 
 export const overviewNodes: OverviewNode[] = [
   // Eingänge oben
-  { id: 'aminosaeuren', name: 'Aminosäuren', x: 0.12, y: 0.1, group: 'protein' },
-  { id: 'glucose', name: 'Glucose', x: 0.5, y: 0.08, group: 'kohlenhydrate' },
-  { id: 'fettsaeuren', name: 'Fettsäuren', x: 0.88, y: 0.1, group: 'lipide' },
+  { id: 'aminosaeuren', name: 'Aminosäuren', x: 0.11, y: 0.08, group: 'protein' },
+  { id: 'glucose', name: 'Glucose', x: 0.5, y: 0.06, group: 'kohlenhydrate' },
+  { id: 'fettsaeuren', name: 'Fettsäuren', x: 0.9, y: 0.08, group: 'lipide' },
   // Speicher / Verzweigungen
-  { id: 'glykogen', name: 'Glykogen', x: 0.26, y: 0.26, group: 'kohlenhydrate' },
-  { id: 'g6p', name: 'Glucose-6-P', x: 0.5, y: 0.3, group: 'kohlenhydrate' },
-  { id: 'ribose5p', name: 'Ribose-5-P', x: 0.74, y: 0.3, group: 'kohlenhydrate' },
+  { id: 'glykogen', name: 'Glykogen', x: 0.24, y: 0.24, group: 'kohlenhydrate' },
+  { id: 'g6p', name: 'Glucose-6-P', x: 0.5, y: 0.28, group: 'kohlenhydrate' },
+  { id: 'ribose5p', name: 'Ribose-5-P', x: 0.84, y: 0.27, group: 'kohlenhydrate' },
   // Mittelachse
-  { id: 'pyruvat', name: 'Pyruvat', x: 0.5, y: 0.52, group: 'zentral' },
-  { id: 'lactat', name: 'Lactat', x: 0.24, y: 0.52, group: 'zentral' },
-  { id: 'acetyl-coa', name: 'Acetyl-CoA', x: 0.5, y: 0.7, group: 'zentral' },
-  { id: 'ketonkoerper', name: 'Ketonkörper', x: 0.82, y: 0.7, group: 'lipide' },
+  { id: 'harnstoff', name: 'Harnstoff', x: 0.09, y: 0.42, group: 'protein' },
+  { id: 'lactat', name: 'Lactat', x: 0.17, y: 0.53, group: 'zentral' },
+  { id: 'pyruvat', name: 'Pyruvat', x: 0.5, y: 0.53, group: 'zentral' },
+  { id: 'acetyl-coa', name: 'Acetyl-CoA', x: 0.5, y: 0.73, group: 'zentral' },
+  { id: 'ketonkoerper', name: 'Ketonkörper', x: 0.88, y: 0.72, group: 'lipide' },
   // Energie / Endpunkte
-  { id: 'citratzyklus', name: 'Citratzyklus', x: 0.5, y: 0.88, group: 'energie' },
-  { id: 'oxalacetat', name: 'Oxalacetat', x: 0.28, y: 0.86, group: 'energie' },
-  { id: 'atmungskette', name: 'Atmungskette / ATP', x: 0.78, y: 0.9, group: 'energie' },
-  { id: 'harnstoff', name: 'Harnstoff', x: 0.1, y: 0.4, group: 'protein' },
+  { id: 'oxalacetat', name: 'Oxalacetat', x: 0.23, y: 0.85, group: 'energie' },
+  { id: 'citratzyklus', name: 'Citratzyklus', x: 0.5, y: 0.92, group: 'energie' },
+  { id: 'atmungskette', name: 'Atmungskette / ATP', x: 0.85, y: 0.9, group: 'energie' },
 ]
 
 export const overviewEdges: OverviewEdge[] = [

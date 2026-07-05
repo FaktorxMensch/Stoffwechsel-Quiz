@@ -14,6 +14,8 @@ const props = withDefaults(
     hideCofactors?: boolean
     hideDeltaG?: boolean
     hideBranches?: boolean
+    /** Abzweig-Ziele (b.to), die zu einem Detailweg führen -> klickbar. */
+    linkableBranches?: string[]
     markers?: { x: number; y: number; color: string }[]
     interactive?: boolean
   }>(),
@@ -23,6 +25,7 @@ const props = withDefaults(
     revealReactionId: null,
     hideDeltaG: false,
     hideBranches: false,
+    linkableBranches: () => [],
     markers: () => [],
     interactive: false,
   },
@@ -39,6 +42,7 @@ const emit = defineEmits<{
       reactionDist: number
     },
   ]
+  branch: [string]
 }>()
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -53,6 +57,7 @@ type Geom = {
   toNorm: (px: number, py: number) => { x: number; y: number }
   nodes: { id: string; x: number; y: number }[]
   reactions: { id: string; samples: { x: number; y: number }[] }[]
+  branches: { to: string; x: number; y: number; hw: number; hh: number }[]
 }
 let geom: Geom | null = null
 
@@ -276,8 +281,11 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillStyle = color
+        // Beschriftung leicht nach außen, mehrere Namen vertikal (zentriert) gestapelt
+        const bx = ex + cofNx * 9
+        const by = ey + cofNy * 9
         names.forEach((nm, i) => {
-          ctx.fillText(nm, ex + cofNx * (9 + i * 13), ey + cofNy * (9 + i * 13))
+          ctx.fillText(nm, bx, by + (i - (names.length - 1) / 2) * 13)
         })
       }
 
@@ -325,6 +333,7 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
   }
 
   // Abzweige in andere Stoffwechselwege (gestrichelte Pfeile nach außen)
+  const branchGeom: Geom['branches'] = []
   if (!props.hideBranches) {
     for (const n of p.nodes) {
       if (!n.branches?.length) continue
@@ -339,6 +348,7 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
       }
       const len = side * 0.135
       n.branches.forEach((b, i) => {
+        const linkable = props.linkableBranches.includes(b.to)
         const ang = baseAng + (i - (n.branches!.length - 1) / 2) * 0.5
         const sx = px.x + Math.cos(ang) * 22
         const sy = px.y + Math.sin(ang) * 22
@@ -356,14 +366,22 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
         ctx.font = `600 11px ui-sans-serif, system-ui, sans-serif`
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        const tw = ctx.measureText(b.to).width
+        const label = linkable ? `${b.to} ↗` : b.to
+        const tw = ctx.measureText(label).width
         const lx = ex + Math.cos(ang) * (tw / 2 + 6)
         const ly = ey + Math.sin(ang) * 10
-        roundRect(ctx, lx - tw / 2 - 6, ly - 9, tw + 12, 18, 5)
-        ctx.fillStyle = 'rgba(110,168,254,0.16)'
+        const hw = tw / 2 + 6
+        roundRect(ctx, lx - hw, ly - 9, tw + 12, 18, 5)
+        ctx.fillStyle = linkable ? 'rgba(110,168,254,0.28)' : 'rgba(110,168,254,0.12)'
         ctx.fill()
-        ctx.fillStyle = C.accent
-        ctx.fillText(b.to, lx, ly)
+        if (linkable) {
+          ctx.strokeStyle = C.accent
+          ctx.lineWidth = 1
+          ctx.stroke()
+        }
+        ctx.fillStyle = linkable ? '#cfe0ff' : C.muted
+        ctx.fillText(label, lx, ly)
+        if (linkable) branchGeom.push({ to: b.to, x: lx, y: ly, hw, hh: 11 })
       })
     }
   }
@@ -389,6 +407,7 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
     toNorm,
     nodes: p.nodes.map((n) => ({ id: n.id, ...nodePx.get(n.id)! })),
     reactions: reactionGeom,
+    branches: branchGeom,
   }
 }
 
@@ -479,9 +498,19 @@ function onPointerUp(ev: PointerEvent) {
   if (!dragging) return
   dragging = false
   if (moved) return // war ein Pan, kein Klick
-  if (!props.interactive || !geom || !canvasRef.value) return
+  if (!geom || !canvasRef.value) return
   const rect = canvasRef.value.getBoundingClientRect()
   const wpt = toWorld(ev.clientX - rect.left, ev.clientY - rect.top)
+
+  // Klick auf einen (klickbaren) Abzweig -> in den anderen Weg springen
+  for (const b of geom.branches) {
+    if (Math.abs(wpt.x - b.x) <= b.hw && Math.abs(wpt.y - b.y) <= b.hh) {
+      emit('branch', b.to)
+      return
+    }
+  }
+
+  if (!props.interactive) return
 
   let nearestNodeId = geom.nodes[0]?.id ?? ''
   let nodeDist = Infinity

@@ -193,7 +193,7 @@ export const glykolyse: Pathway = {
       id: 'g6',
       from: 'gap',
       to: '13bpg',
-      enzyme: 'Glycerinaldehyd-3-phosphat-Dehydrogenase',
+      enzyme: 'GAP-Dehydrogenase',
       reversible: true,
       tags: ['redox', 'phosphorylierung'],
       cofactors: [
@@ -202,7 +202,7 @@ export const glykolyse: Pathway = {
         { name: 'NADH+H+', dir: 'out' },
       ],
       deltaG: 1.5,
-      note: 'Oxidation + Einbau von anorganischem Phosphat (energiereiche Acylphosphat-Bindung).',
+      note: 'Glycerinaldehyd-3-phosphat-Dehydrogenase (GAPDH). Oxidation + Einbau von anorganischem Phosphat (energiereiche Acylphosphat-Bindung).',
     },
     {
       id: 'g7',
