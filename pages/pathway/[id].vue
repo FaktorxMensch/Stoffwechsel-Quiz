@@ -215,6 +215,7 @@ const canvasBind = computed(() => {
       hideCofactors: false,
       hideDeltaG: false,
       hideBranches: false,
+      hideDirection: false,
       interactive: true,
       highlightIds: selectedNodeId.value ? [selectedNodeId.value] : [],
       revealNodeIds: [] as string[],
@@ -225,12 +226,18 @@ const canvasBind = computed(() => {
   const t = cur.value.type
   const isClick = t === 'locate-node' || t === 'locate-enzyme'
   const nodeId = cur.value.nodeId
+  const q = !answered.value // Frage noch offen -> verdecken; nach Antwort alles zeigen
   return {
-    hideNodeNames: t === 'locate-node' && !answered.value,
-    hideEnzymes: t === 'locate-enzyme' && !answered.value,
-    hideCofactors: t === 'locate-enzyme' && !answered.value,
-    hideDeltaG: t === 'energy' && !answered.value, // ΔG nicht verraten
-    hideBranches: t === 'branch' && !answered.value, // Abzweige nicht verraten
+    // Metabolit lokalisieren: nur Gerüst + Punkte, alle Beschriftungen weg
+    hideNodeNames: t === 'locate-node' && q,
+    // Enzymnamen verraten oft die Position (z.B. „Pyruvat-Kinase“ neben Pyruvat)
+    hideEnzymes: (t === 'locate-node' || t === 'locate-enzyme') && q,
+    // Cofaktoren = Edukte/Produkte; ihre Namen verraten Position bzw. die Cofaktor-Antwort
+    hideCofactors:
+      (t === 'locate-node' || t === 'locate-enzyme' || t === 'cofactor' || t === 'structure') && q,
+    hideDeltaG: (t === 'locate-node' || t === 'energy') && q, // ΔG nicht verraten
+    hideBranches: (t === 'locate-node' || t === 'branch') && q, // Abzweige nicht verraten
+    hideDirection: t === 'direction' && q, // Pfeilrichtung nicht verraten
     interactive: isClick && !answered.value,
     highlightIds: answered.value && nodeId ? [nodeId] : [],
     revealNodeIds: answered.value && nodeId ? [nodeId] : [],

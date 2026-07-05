@@ -14,6 +14,8 @@ const props = withDefaults(
     hideCofactors?: boolean
     hideDeltaG?: boolean
     hideBranches?: boolean
+    /** Richtung verbergen: keine Pfeilspitzen, keine „Dickpfeil“-Hervorhebung (für Richtungs-Quiz). */
+    hideDirection?: boolean
     /** Abzweig-Ziele (b.to), die zu einem Detailweg führen -> klickbar. */
     linkableBranches?: string[]
     markers?: { x: number; y: number; color: string }[]
@@ -25,6 +27,7 @@ const props = withDefaults(
     revealReactionId: null,
     hideDeltaG: false,
     hideBranches: false,
+    hideDirection: false,
     linkableBranches: () => [],
     markers: () => [],
     interactive: false,
@@ -168,7 +171,8 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
     }
 
     const isRevealed = props.revealReactionId === r.id
-    const isStrong = strongFlux(r)
+    // im Richtungs-Quiz keine „Dickpfeil“-Hervorhebung (verrät irreversibel/reversibel)
+    const isStrong = strongFlux(r) && !props.hideDirection
     const lineWidth = isRevealed ? 5.5 : isStrong ? 4.8 : 2
     const stroke = isRevealed ? C.accent : isStrong ? C.edgeStrong : C.edge
 
@@ -181,14 +185,16 @@ function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
     }
     strokeReactionPath(ctx, a, ctrl, b, { color: stroke, width: lineWidth })
 
-    // Pfeilspitzen (Richtung). Reversibel -> beidseitig.
-    const headColor = isRevealed ? C.accent : isStrong ? C.edgeStrong : C.edge
-    const headSize = isRevealed ? 13 : isStrong ? 12 : 8
-    const end = quadPoint([a.x, a.y], ctrl, [b.x, b.y], 0.84)
-    arrowHead(ctx, end.x, end.y, end.angle, headSize, headColor)
-    if (r.reversible) {
-      const start = quadPoint([a.x, a.y], ctrl, [b.x, b.y], 0.16)
-      arrowHead(ctx, start.x, start.y, start.angle + Math.PI, headSize, headColor)
+    // Pfeilspitzen (Richtung). Reversibel -> beidseitig. Im Richtungs-Quiz komplett verborgen.
+    if (!props.hideDirection) {
+      const headColor = isRevealed ? C.accent : isStrong ? C.edgeStrong : C.edge
+      const headSize = isRevealed ? 13 : isStrong ? 12 : 8
+      const end = quadPoint([a.x, a.y], ctrl, [b.x, b.y], 0.84)
+      arrowHead(ctx, end.x, end.y, end.angle, headSize, headColor)
+      if (r.reversible) {
+        const start = quadPoint([a.x, a.y], ctrl, [b.x, b.y], 0.16)
+        arrowHead(ctx, start.x, start.y, start.angle + Math.PI, headSize, headColor)
+      }
     }
 
     // Geometrie für Hittest
@@ -425,6 +431,7 @@ watch(
     props.hideCofactors,
     props.hideDeltaG,
     props.hideBranches,
+    props.hideDirection,
     props.markers,
   ],
   () => render(),
