@@ -43,20 +43,20 @@ export const overviewNodes: OverviewNode[] = [
 ]
 
 export const overviewEdges: OverviewEdge[] = [
-  { id: 'e-glykogen-abbau', name: 'Glykogen-Abbau', from: 'glykogen', to: 'g6p', reversible: false, status: 'geplant' },
-  { id: 'e-glykogen-synthese', name: 'Glykogen-Synthese', from: 'g6p', to: 'glykogen', reversible: false, status: 'geplant' },
-  { id: 'e-glucose-g6p', name: 'Hexokinase', from: 'glucose', to: 'g6p', reversible: true, status: 'geplant' },
+  { id: 'e-glykogen-abbau', name: 'Glykogen-Abbau', from: 'glykogen', to: 'g6p', reversible: false, pathwayId: 'glykogen', status: 'fertig' },
+  { id: 'e-glykogen-synthese', name: 'Glykogen-Synthese', from: 'g6p', to: 'glykogen', reversible: false, pathwayId: 'glykogen', status: 'fertig' },
+  { id: 'e-glucose-g6p', name: 'Hexokinase', from: 'glucose', to: 'g6p', reversible: false, pathwayId: 'glykolyse', status: 'fertig' },
   { id: 'e-ppw', name: 'Pentosephosphatweg', from: 'g6p', to: 'ribose5p', reversible: false, pathwayId: 'pentosephosphatweg', status: 'fertig' },
   { id: 'e-glykolyse', name: 'Glykolyse', from: 'g6p', to: 'pyruvat', reversible: false, pathwayId: 'glykolyse', status: 'fertig' },
   { id: 'e-gluconeogenese', name: 'Gluconeogenese', from: 'pyruvat', to: 'g6p', reversible: false, pathwayId: 'gluconeogenese', status: 'fertig' },
-  { id: 'e-laktat', name: 'Laktat-Gärung', from: 'pyruvat', to: 'lactat', reversible: true, status: 'geplant' },
+  { id: 'e-laktat', name: 'Laktat-Gärung', from: 'pyruvat', to: 'lactat', reversible: true, pathwayId: 'laktat', status: 'fertig' },
   { id: 'e-pdh', name: 'Pyruvat-Dehydrogenase', from: 'pyruvat', to: 'acetyl-coa', reversible: false, pathwayId: 'pdh', status: 'fertig' },
-  { id: 'e-aa-pyruvat', name: 'Aminosäure-Abbau', from: 'aminosaeuren', to: 'pyruvat', reversible: true, status: 'geplant' },
+  { id: 'e-aa-pyruvat', name: 'Aminosäure-Abbau', from: 'aminosaeuren', to: 'pyruvat', reversible: true, pathwayId: 'aminosaeureabbau', status: 'fertig' },
   { id: 'e-harnstoff', name: 'Harnstoffzyklus', from: 'aminosaeuren', to: 'harnstoff', reversible: false, pathwayId: 'harnstoffzyklus', status: 'fertig' },
   { id: 'e-boxidation', name: 'β-Oxidation', from: 'fettsaeuren', to: 'acetyl-coa', reversible: false, pathwayId: 'beta-oxidation', status: 'fertig' },
-  { id: 'e-fettsynthese', name: 'Fettsäure-Synthese', from: 'acetyl-coa', to: 'fettsaeuren', reversible: false, status: 'geplant' },
-  { id: 'e-ketogenese', name: 'Ketogenese', from: 'acetyl-coa', to: 'ketonkoerper', reversible: false, status: 'geplant' },
+  { id: 'e-fettsynthese', name: 'Fettsäure-Synthese', from: 'acetyl-coa', to: 'fettsaeuren', reversible: false, pathwayId: 'fettsaeuresynthese', status: 'fertig' },
+  { id: 'e-ketogenese', name: 'Ketogenese', from: 'acetyl-coa', to: 'ketonkoerper', reversible: false, pathwayId: 'ketogenese', status: 'fertig' },
   { id: 'e-citratzyklus', name: 'Citratzyklus', from: 'acetyl-coa', to: 'citratzyklus', reversible: false, pathwayId: 'citratzyklus', status: 'fertig' },
-  { id: 'e-anaplerose', name: 'Anaplerose', from: 'pyruvat', to: 'oxalacetat', reversible: false, status: 'geplant' },
+  { id: 'e-anaplerose', name: 'Anaplerose', from: 'pyruvat', to: 'oxalacetat', reversible: false, pathwayId: 'gluconeogenese', status: 'fertig' },
   { id: 'e-atmungskette', name: 'Atmungskette', from: 'citratzyklus', to: 'atmungskette', reversible: false, pathwayId: 'atmungskette', status: 'fertig' },
 ]
