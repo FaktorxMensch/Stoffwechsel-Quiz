@@ -1,4 +1,5 @@
 import type { Pathway } from '~/types/metabolism'
+import { S } from './_structures'
 
 // Laktat-Gärung (anaerobe Glykolyse) – regeneriert NAD⁺ für die Glykolyse.
 // Quellen: Wikipedia, AMBOSS, Lehninger.
@@ -19,6 +20,7 @@ export const laktat: Pathway = {
       x: 0.5,
       y: 0.25,
       cAtoms: 3,
+      structure: S.pyruvat,
       branches: [{ to: 'Citratzyklus', note: 'aerober Weg (über Pyruvat-Dehydrogenase)' }],
     },
     {
@@ -27,6 +29,7 @@ export const laktat: Pathway = {
       x: 0.5,
       y: 0.75,
       cAtoms: 3,
+      structure: S.lactat,
       branches: [{ to: 'Gluconeogenese', note: 'Cori-Zyklus: Laktat → Glucose in der Leber' }],
     },
   ],

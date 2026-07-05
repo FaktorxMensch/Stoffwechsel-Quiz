@@ -1,4 +1,5 @@
 import type { Pathway } from '~/types/metabolism'
+import { S } from './_structures'
 
 // Glykogen-Stoffwechsel (Auf- und Abbau). Quellen: Wikipedia, AMBOSS, Lehninger.
 
@@ -12,15 +13,16 @@ export const glykogen: Pathway = {
   layout: 'linear',
   detailed: true,
   nodes: [
-    { id: 'glykogen', name: 'Glykogen', x: 0.5, y: 0.1 },
-    { id: 'udpglucose', name: 'UDP-Glucose', x: 0.74, y: 0.34, cAtoms: 6 },
-    { id: 'glucose1p', name: 'Glucose-1-P', x: 0.5, y: 0.56, cAtoms: 6 },
+    { id: 'glykogen', name: 'Glykogen', x: 0.5, y: 0.1, structure: S.glykogen },
+    { id: 'udpglucose', name: 'UDP-Glucose', x: 0.74, y: 0.34, cAtoms: 6, structure: S.udpGlucose },
+    { id: 'glucose1p', name: 'Glucose-1-P', x: 0.5, y: 0.56, cAtoms: 6, structure: S.glucose1p },
     {
       id: 'g6p',
       name: 'Glucose-6-P',
       x: 0.5,
       y: 0.82,
       cAtoms: 6,
+      structure: S.g6p,
       branches: [
         { to: 'Glykolyse', note: 'Energiegewinnung' },
         { to: 'Gluconeogenese', note: 'bzw. Glucose-Freisetzung (Leber)' },

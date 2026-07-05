@@ -1,4 +1,5 @@
 import type { Pathway } from '~/types/metabolism'
+import { S } from './_structures'
 
 // Fettsäuresynthese (De-novo-Lipogenese) – Aufbau von Palmitat aus Acetyl-CoA.
 // Quellen: Wikipedia, AMBOSS, Lehninger.
@@ -19,15 +20,17 @@ export const fettsaeuresynthese: Pathway = {
       x: 0.5,
       y: 0.15,
       cAtoms: 2,
+      structure: S.acetylCoA,
       branches: [{ to: 'Citratzyklus', note: 'Herkunft über Citrat-Shuttle aus dem Mitochondrium' }],
     },
-    { id: 'malonyl-coa', name: 'Malonyl-CoA', x: 0.5, y: 0.5, cAtoms: 3 },
+    { id: 'malonyl-coa', name: 'Malonyl-CoA', x: 0.5, y: 0.5, cAtoms: 3, structure: S.malonylCoA },
     {
       id: 'palmitat',
       name: 'Palmitat (C16)',
       x: 0.5,
       y: 0.88,
       cAtoms: 16,
+      structure: S.palmitat,
       branches: [{ to: 'Triacylglycerine', note: 'Speicherfett / Membranlipide' }],
     },
   ],

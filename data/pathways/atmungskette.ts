@@ -1,4 +1,5 @@
 import type { Pathway } from '~/types/metabolism'
+import { S } from './_structures'
 
 // Atmungskette / oxidative Phosphorylierung (vereinfachte Darstellung des Elektronenflusses).
 // Quellen: Wikipedia, AMBOSS, Lehninger.
@@ -21,9 +22,9 @@ export const atmungskette: Pathway = {
       branches: [{ to: 'Citratzyklus', note: 'Herkunft der Elektronen (auch Glykolyse, β-Oxidation)' }],
     },
     { id: 'fadh2', name: 'FADH₂', x: 0.2, y: 0.24 },
-    { id: 'ubichinon', name: 'Ubichinon (Q)', x: 0.5, y: 0.4 },
+    { id: 'ubichinon', name: 'Ubichinon (Q)', x: 0.5, y: 0.4, structure: S.ubichinon },
     { id: 'cytc', name: 'Cytochrom c', x: 0.5, y: 0.62 },
-    { id: 'wasser', name: '½ O₂ → H₂O', x: 0.5, y: 0.86 },
+    { id: 'wasser', name: '½ O₂ → H₂O', x: 0.5, y: 0.86, structure: S.wasser },
   ],
   reactions: [
     {

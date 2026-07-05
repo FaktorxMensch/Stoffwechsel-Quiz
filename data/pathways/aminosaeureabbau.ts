@@ -1,4 +1,5 @@
 import type { Pathway } from '~/types/metabolism'
+import { S } from './_structures'
 
 // Aminosäureabbau (Stickstoff-Abgabe) – Transaminierung + oxidative Desaminierung.
 // Vereinfachte, allgemeine Darstellung. Quellen: Wikipedia, AMBOSS, Lehninger.
@@ -18,6 +19,7 @@ export const aminosaeureabbau: Pathway = {
       name: 'Aminosäure',
       x: 0.5,
       y: 0.12,
+      structure: S.aminosaeureGeneric,
       branches: [{ to: 'Citratzyklus', note: 'C-Gerüst: glucogen (→ Gluconeogenese) oder ketogen' }],
     },
     {
@@ -25,6 +27,8 @@ export const aminosaeureabbau: Pathway = {
       name: 'Glutamat',
       x: 0.5,
       y: 0.5,
+      cAtoms: 5,
+      structure: S.glutamat,
       branches: [{ to: 'Harnstoffzyklus', note: 'liefert NH₄⁺ (+ Aspartat) zur Entgiftung' }],
     },
     {
@@ -33,6 +37,7 @@ export const aminosaeureabbau: Pathway = {
       x: 0.5,
       y: 0.88,
       cAtoms: 5,
+      structure: S.akg,
       branches: [{ to: 'Citratzyklus', note: 'Wiedereintritt des C5-Gerüsts' }],
     },
   ],

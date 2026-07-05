@@ -1,4 +1,5 @@
 import type { Pathway } from '~/types/metabolism'
+import { S } from './_structures'
 
 // Harnstoffzyklus (Ornithinzyklus) – Entgiftung von Ammoniak zu Harnstoff.
 // Quellen: Wikipedia, AMBOSS, Lehninger.
@@ -13,10 +14,10 @@ export const harnstoffzyklus: Pathway = {
   layout: 'circle',
   detailed: true,
   nodes: [
-    { id: 'ornithin', name: 'Ornithin', x: 0.5, y: 0.12 },
-    { id: 'citrullin', name: 'Citrullin', x: 0.86, y: 0.5 },
-    { id: 'argininosuccinat', name: 'Argininosuccinat', x: 0.5, y: 0.88 },
-    { id: 'arginin', name: 'Arginin', x: 0.14, y: 0.5 },
+    { id: 'ornithin', name: 'Ornithin', x: 0.5, y: 0.12, cAtoms: 5, structure: S.ornithin },
+    { id: 'citrullin', name: 'Citrullin', x: 0.86, y: 0.5, cAtoms: 6, structure: S.citrullin },
+    { id: 'argininosuccinat', name: 'Argininosuccinat', x: 0.5, y: 0.88, cAtoms: 10, structure: S.argininosuccinat },
+    { id: 'arginin', name: 'Arginin', x: 0.14, y: 0.5, cAtoms: 6, structure: S.arginin },
   ],
   reactions: [
     {

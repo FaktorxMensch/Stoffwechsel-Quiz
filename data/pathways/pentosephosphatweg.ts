@@ -1,4 +1,5 @@
 import type { Pathway } from '~/types/metabolism'
+import { S } from './_structures'
 
 // Pentosephosphatweg (oxidativer Teil) – liefert NADPH und Ribose-5-P.
 // Quellen: Wikipedia, AMBOSS, Lehninger.
@@ -19,17 +20,19 @@ export const pentosephosphatweg: Pathway = {
       x: 0.5,
       y: 0.08,
       cAtoms: 6,
+      structure: S.g6p,
       branches: [{ to: 'Glykolyse', note: 'alternativer Abbauweg' }],
     },
-    { id: 'lacton', name: '6-Phosphogluconolacton', x: 0.5, y: 0.32, cAtoms: 6 },
-    { id: 'gluconat', name: '6-Phosphogluconat', x: 0.5, y: 0.55, cAtoms: 6 },
-    { id: 'ribulose5p', name: 'Ribulose-5-P', x: 0.5, y: 0.75, cAtoms: 5 },
+    { id: 'lacton', name: '6-Phosphogluconolacton', x: 0.5, y: 0.32, cAtoms: 6, structure: S.lacton },
+    { id: 'gluconat', name: '6-Phosphogluconat', x: 0.5, y: 0.55, cAtoms: 6, structure: S.phosphogluconat },
+    { id: 'ribulose5p', name: 'Ribulose-5-P', x: 0.5, y: 0.75, cAtoms: 5, structure: S.ribulose5p },
     {
       id: 'ribose5p',
       name: 'Ribose-5-P',
       x: 0.5,
       y: 0.93,
       cAtoms: 5,
+      structure: S.ribose5p,
       branches: [
         { to: 'Nukleotidsynthese', note: 'Purine/Pyrimidine, über PRPP' },
         { to: 'Glykolyse', note: 'nicht-oxidativer Teil → Fructose-6-P / GAP' },

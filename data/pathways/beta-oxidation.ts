@@ -1,4 +1,5 @@
 import type { Pathway } from '~/types/metabolism'
+import { S } from './_structures'
 
 // β-Oxidation der Fettsäuren – ein Durchgang verkürzt die Acyl-Kette um 2 C
 // und liefert 1 Acetyl-CoA, 1 FADH₂, 1 NADH. Quellen: Wikipedia, AMBOSS, Lehninger.
@@ -18,11 +19,12 @@ export const betaOxidation: Pathway = {
       name: 'Acyl-CoA',
       x: 0.5,
       y: 0.12,
+      structure: S.acylCoA,
       branches: [{ to: 'nächster Zyklus', note: 'um 2 C verkürzt – erneuter Durchlauf' }],
     },
-    { id: 'enoyl-coa', name: 'trans-Δ²-Enoyl-CoA', x: 0.86, y: 0.5 },
-    { id: 'hydroxyacyl-coa', name: 'L-3-Hydroxyacyl-CoA', x: 0.5, y: 0.88 },
-    { id: 'ketoacyl-coa', name: '3-Ketoacyl-CoA', x: 0.14, y: 0.5 },
+    { id: 'enoyl-coa', name: 'trans-Δ²-Enoyl-CoA', x: 0.86, y: 0.5, structure: S.enoylCoA },
+    { id: 'hydroxyacyl-coa', name: 'L-3-Hydroxyacyl-CoA', x: 0.5, y: 0.88, structure: S.hydroxyacylCoA },
+    { id: 'ketoacyl-coa', name: '3-Ketoacyl-CoA', x: 0.14, y: 0.5, structure: S.ketoacylCoA },
   ],
   reactions: [
     {

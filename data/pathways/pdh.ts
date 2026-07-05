@@ -1,4 +1,5 @@
 import type { Pathway } from '~/types/metabolism'
+import { S } from './_structures'
 
 // Pyruvat-Dehydrogenase-Komplex (PDH)
 // Bindeglied zwischen Glykolyse und Citratzyklus. Quellen: Wikipedia, AMBOSS, Lehninger.
@@ -13,13 +14,14 @@ export const pdh: Pathway = {
   layout: 'linear',
   detailed: true,
   nodes: [
-    { id: 'pyruvat', name: 'Pyruvat', x: 0.5, y: 0.22, cAtoms: 3 },
+    { id: 'pyruvat', name: 'Pyruvat', x: 0.5, y: 0.22, cAtoms: 3, structure: S.pyruvat },
     {
       id: 'acetyl-coa',
       name: 'Acetyl-CoA',
       x: 0.5,
       y: 0.78,
       cAtoms: 2,
+      structure: S.acetylCoA,
       branches: [
         { to: 'Citratzyklus', note: 'Hauptweg (aerob)' },
         { to: 'Fettsäuresynthese', note: 'bei Energieüberschuss' },

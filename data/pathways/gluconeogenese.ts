@@ -1,4 +1,5 @@
 import type { Pathway } from '~/types/metabolism'
+import { S } from './_structures'
 
 // Gluconeogenese – Neusynthese von Glucose aus Pyruvat (v.a. Leber, auch Niere).
 // Im Wesentlichen die umgekehrte Glykolyse, aber mit 4 Schlüsselenzymen, die die
@@ -20,23 +21,25 @@ export const gluconeogenese: Pathway = {
       x: 0.5,
       y: 0.05,
       cAtoms: 6,
+      structure: S.glucose,
       branches: [{ to: 'Blut', note: 'Abgabe ins Blut (Glucosehomöostase)' }],
     },
-    { id: 'g6p', name: 'Glucose-6-P', x: 0.5, y: 0.14, cAtoms: 6 },
-    { id: 'f6p', name: 'Fructose-6-P', x: 0.5, y: 0.23, cAtoms: 6 },
-    { id: 'f16bp', name: 'Fructose-1,6-bisP', x: 0.5, y: 0.32, cAtoms: 6 },
-    { id: 'dhap', name: 'DHAP', x: 0.26, y: 0.44, cAtoms: 3 },
-    { id: 'gap', name: 'Glycerinaldehyd-3-P', x: 0.5, y: 0.44, cAtoms: 3 },
-    { id: '13bpg', name: '1,3-Bisphosphoglycerat', x: 0.5, y: 0.54, cAtoms: 3 },
-    { id: '3pg', name: '3-Phosphoglycerat', x: 0.5, y: 0.63, cAtoms: 3 },
-    { id: '2pg', name: '2-Phosphoglycerat', x: 0.5, y: 0.72, cAtoms: 3 },
-    { id: 'pep', name: 'Phosphoenolpyruvat', x: 0.5, y: 0.81, cAtoms: 3 },
+    { id: 'g6p', name: 'Glucose-6-P', x: 0.5, y: 0.14, cAtoms: 6, structure: S.g6p },
+    { id: 'f6p', name: 'Fructose-6-P', x: 0.5, y: 0.23, cAtoms: 6, structure: S.f6p },
+    { id: 'f16bp', name: 'Fructose-1,6-bisP', x: 0.5, y: 0.32, cAtoms: 6, structure: S.f16bp },
+    { id: 'dhap', name: 'DHAP', x: 0.26, y: 0.44, cAtoms: 3, structure: S.dhap },
+    { id: 'gap', name: 'Glycerinaldehyd-3-P', x: 0.5, y: 0.44, cAtoms: 3, structure: S.gap },
+    { id: '13bpg', name: '1,3-Bisphosphoglycerat', x: 0.5, y: 0.54, cAtoms: 3, structure: S.bpg13 },
+    { id: '3pg', name: '3-Phosphoglycerat', x: 0.5, y: 0.63, cAtoms: 3, structure: S.pg3 },
+    { id: '2pg', name: '2-Phosphoglycerat', x: 0.5, y: 0.72, cAtoms: 3, structure: S.pg2 },
+    { id: 'pep', name: 'Phosphoenolpyruvat', x: 0.5, y: 0.81, cAtoms: 3, structure: S.pep },
     {
       id: 'oxalacetat',
       name: 'Oxalacetat',
       x: 0.5,
       y: 0.89,
       cAtoms: 4,
+      structure: S.oxalacetat,
       branches: [{ to: 'Citratzyklus', note: 'anaplerotisch / Aminosäuren (Aspartat)' }],
     },
     {
@@ -45,6 +48,7 @@ export const gluconeogenese: Pathway = {
       x: 0.5,
       y: 0.96,
       cAtoms: 3,
+      structure: S.pyruvat,
       branches: [{ to: 'Laktat', note: 'Cori-Zyklus (aus Muskel)' }],
     },
   ],

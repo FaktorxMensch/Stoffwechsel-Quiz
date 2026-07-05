@@ -1,4 +1,5 @@
 import type { Pathway } from '~/types/metabolism'
+import { S } from './_structures'
 
 // Ketogenese – Bildung von Ketonkörpern aus Acetyl-CoA. Quellen: Wikipedia, AMBOSS, Lehninger.
 
@@ -18,17 +19,19 @@ export const ketogenese: Pathway = {
       x: 0.5,
       y: 0.08,
       cAtoms: 2,
+      structure: S.acetylCoA,
       branches: [{ to: 'β-Oxidation', note: 'Hauptquelle im Hungerstoffwechsel' }],
     },
-    { id: 'acetoacetyl-coa', name: 'Acetoacetyl-CoA', x: 0.5, y: 0.3, cAtoms: 4 },
-    { id: 'hmg-coa', name: 'HMG-CoA', x: 0.5, y: 0.52, cAtoms: 6 },
-    { id: 'acetoacetat', name: 'Acetoacetat', x: 0.5, y: 0.73, cAtoms: 4 },
+    { id: 'acetoacetyl-coa', name: 'Acetoacetyl-CoA', x: 0.5, y: 0.3, cAtoms: 4, structure: S.acetoacetylCoA },
+    { id: 'hmg-coa', name: 'HMG-CoA', x: 0.5, y: 0.52, cAtoms: 6, structure: S.hmgCoA },
+    { id: 'acetoacetat', name: 'Acetoacetat', x: 0.5, y: 0.73, cAtoms: 4, structure: S.acetoacetat },
     {
       id: 'bhb',
       name: '3-Hydroxybutyrat',
       x: 0.5,
       y: 0.93,
       cAtoms: 4,
+      structure: S.hydroxybutyrat,
       branches: [{ to: 'periphere Gewebe', note: 'Energiequelle für Herz, Muskel, Gehirn' }],
     },
   ],
