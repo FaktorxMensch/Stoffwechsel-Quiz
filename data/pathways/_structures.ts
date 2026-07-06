@@ -78,4 +78,30 @@ export const S = {
   bilirubin: j('[offenes', ' Tetrapyrrol]', 'Bilirubin', '(gelb, lipophil)'),
   bilirubinGlucuronid: j('Bilirubin', '+ 2 Glucuronsäure', '(wasserlöslich,', ' „direkt“)'),
   sterkobilin: j('[offenes', ' Tetrapyrrol]', 'Urobilin/', 'Sterkobilin'),
+
+  // --- Cholesterinbiosynthese ---
+  mevalonat: j('COO⁻', '|', 'CH₂', '|', 'C(OH)(CH₃)', '|', 'CH₂', '|', 'CH₂OH'),
+  ipp: j('CH₂=C(CH₃)', '|', 'CH₂–CH₂', '|', 'O–Ⓟ–Ⓟ', '(Isopren-Einheit)'),
+  squalen: j('C₃₀-Isoprenoid', '(6 Isopren-', ' Einheiten,', ' linear)'),
+  cholesterin: j('Steran-Gerüst', '(4 Ringe)', '+ OH an C3', '+ Seitenkette'),
+
+  // --- Purinbiosynthese ---
+  prpp: j('5-Phospho-', 'ribose', '|', '1-O–Ⓟ–Ⓟ', '(aktiviert)'),
+  imp: j('Hypoxanthin', '(Purin)', '|', 'Ribose–Ⓟ'),
+  amp: j('Adenin', '(Purin)', '|', 'Ribose–Ⓟ'),
+  gmp: j('Guanin', '(Purin)', '|', 'Ribose–Ⓟ'),
+
+  // --- Pyrimidinbiosynthese ---
+  carbamoylphosphat: j('H₂N–C=O', '|', 'O–Ⓟ'),
+  carbamoylaspartat: j('H₂N–C(=O)–NH', '|', 'CH–COO⁻', '|', 'CH₂–COO⁻'),
+  orotat: j('[Pyrimidin-', ' Ring]', 'Orotsäure', '–COO⁻'),
+  ump: j('Uracil', '(Pyrimidin)', '|', 'Ribose–Ⓟ'),
+  ctp: j('Cytosin', '(Pyrimidin)', '|', 'Ribose–Ⓟ–Ⓟ–Ⓟ'),
+
+  // --- Katecholaminsynthese ---
+  tyrosin: j('HO–[Benzol]', '|', 'CH₂', '|', 'CH–NH₃⁺', '|', 'COO⁻'),
+  ldopa: j('HO–[Benzol]–OH', '|', 'CH₂', '|', 'CH–NH₃⁺', '|', 'COO⁻'),
+  dopamin: j('HO–[Benzol]–OH', '|', 'CH₂', '|', 'CH₂–NH₃⁺'),
+  noradrenalin: j('HO–[Benzol]–OH', '|', 'CH(OH)', '|', 'CH₂–NH₃⁺'),
+  adrenalin: j('HO–[Benzol]–OH', '|', 'CH(OH)', '|', 'CH₂–NH₂⁺–CH₃'),
 }

@@ -14,6 +14,10 @@ import { fettsaeuresynthese } from './fettsaeuresynthese'
 import { aminosaeureabbau } from './aminosaeureabbau'
 import { haemsynthese } from './haemsynthese'
 import { haemabbau } from './haemabbau'
+import { cholesterinsynthese } from './cholesterinsynthese'
+import { purinsynthese } from './purinsynthese'
+import { pyrimidinsynthese } from './pyrimidinsynthese'
+import { katecholaminsynthese } from './katecholaminsynthese'
 
 // Registry aller Stoffwechselwege. Neuen Weg hinzufügen: importieren + hier eintragen.
 export const pathways: Record<string, Pathway> = {
@@ -32,6 +36,10 @@ export const pathways: Record<string, Pathway> = {
   [harnstoffzyklus.id]: harnstoffzyklus,
   [haemsynthese.id]: haemsynthese,
   [haemabbau.id]: haemabbau,
+  [cholesterinsynthese.id]: cholesterinsynthese,
+  [purinsynthese.id]: purinsynthese,
+  [pyrimidinsynthese.id]: pyrimidinsynthese,
+  [katecholaminsynthese.id]: katecholaminsynthese,
 }
 
 export const pathwayList = Object.values(pathways)

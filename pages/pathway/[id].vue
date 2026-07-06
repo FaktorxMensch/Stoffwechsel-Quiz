@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getPathway, pathwayList } from '~/data/pathways'
+import { pathwayVideos } from '~/data/pathways/_videos'
 import { buildQuizItems, reactionLabel, type QuizItem } from '~/utils/quiz'
 import type { Reaction } from '~/types/metabolism'
 
@@ -7,6 +8,7 @@ const route = useRoute()
 const router = useRouter()
 const id = computed(() => route.params.id as string)
 const pathway = computed(() => getPathway(id.value))
+const videos = computed(() => pathwayVideos[id.value] ?? [])
 
 const { record, pickNext, mastery } = useProgress()
 
@@ -383,6 +385,17 @@ const quizStructure = computed(() =>
           <p class="small">{{ pathway.summary }}</p>
           <p class="small"><span class="muted">Ort:</span> {{ pathway.location }}</p>
           <p class="muted small">Tipp: Metabolit in der Karte anklicken für Strukturformel & Abzweige.</p>
+        </div>
+
+        <div v-if="videos.length" class="card">
+          <h2>🎬 Meditricks-Videos</h2>
+          <p
+            v-for="v in videos"
+            :key="v.url"
+            style="margin: 0 0 6px"
+          >
+            <a :href="v.url" target="_blank" rel="noopener">▶ {{ v.title }}</a>
+          </p>
         </div>
 
         <!-- Ausgewählter Metabolit -->

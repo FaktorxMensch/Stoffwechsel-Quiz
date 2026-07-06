@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { pathwayList } from '~/data/pathways'
+import { overviewVideo } from '~/data/pathways/_videos'
 
 const router = useRouter()
 const hint = ref<string | null>(null)
@@ -27,6 +28,9 @@ function onHint(msg: string) {
           Detail-Quiz.
         </p>
         <p v-if="hint" class="feedback no">{{ hint }}</p>
+        <p class="small" style="margin-bottom: 0">
+          <a :href="overviewVideo.url" target="_blank" rel="noopener">🎬 {{ overviewVideo.title }}</a>
+        </p>
       </div>
 
       <div class="card">
