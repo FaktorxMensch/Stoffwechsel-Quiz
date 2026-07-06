@@ -12,6 +12,8 @@ import { glykogen } from './glykogen'
 import { ketogenese } from './ketogenese'
 import { fettsaeuresynthese } from './fettsaeuresynthese'
 import { aminosaeureabbau } from './aminosaeureabbau'
+import { haemsynthese } from './haemsynthese'
+import { haemabbau } from './haemabbau'
 
 // Registry aller Stoffwechselwege. Neuen Weg hinzufügen: importieren + hier eintragen.
 export const pathways: Record<string, Pathway> = {
@@ -28,6 +30,8 @@ export const pathways: Record<string, Pathway> = {
   [ketogenese.id]: ketogenese,
   [aminosaeureabbau.id]: aminosaeureabbau,
   [harnstoffzyklus.id]: harnstoffzyklus,
+  [haemsynthese.id]: haemsynthese,
+  [haemabbau.id]: haemabbau,
 }
 
 export const pathwayList = Object.values(pathways)

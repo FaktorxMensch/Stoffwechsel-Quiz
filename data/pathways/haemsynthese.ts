@@ -1,0 +1,118 @@
+import type { Pathway } from '~/types/metabolism'
+import { S } from './_structures'
+
+// Häm-Synthese (Porphyrinbiosynthese). Quellen: Wikipedia, AMBOSS, Lehninger.
+
+export const haemsynthese: Pathway = {
+  id: 'haemsynthese',
+  name: 'Häm-Synthese',
+  aka: ['Porphyrinsynthese', 'Hämbiosynthese'],
+  location: 'Leber & Erythroblasten – Start & Ende im Mitochondrium, Mitte im Cytosol',
+  summary:
+    'Aufbau von Häm aus Succinyl-CoA und Glycin. Schrittmacher ist die ALA-Synthase (durch Häm rückgekoppelt gehemmt). Der Weg pendelt zwischen Mitochondrium und Cytosol. Blei hemmt ALA-Dehydratase und Ferrochelatase → Ursache von Porphyrien/Bleivergiftung.',
+  layout: 'linear',
+  detailed: true,
+  nodes: [
+    {
+      id: 'succinyl-coa',
+      name: 'Succinyl-CoA',
+      x: 0.5,
+      y: 0.06,
+      cAtoms: 4,
+      branches: [{ to: 'Citratzyklus', note: 'Herkunft (+ Glycin)' }],
+    },
+    { id: 'ala', name: 'δ-Aminolävulinsäure', x: 0.5, y: 0.22, cAtoms: 5, structure: S.ala },
+    { id: 'pbg', name: 'Porphobilinogen', x: 0.5, y: 0.38, structure: S.pbg },
+    { id: 'uroporphyrinogen', name: 'Uroporphyrinogen III', x: 0.5, y: 0.54, structure: S.uroporphyrinogen },
+    { id: 'coproporphyrinogen', name: 'Coproporphyrinogen III', x: 0.5, y: 0.7, structure: S.coproporphyrinogen },
+    { id: 'protoporphyrin', name: 'Protoporphyrin IX', x: 0.5, y: 0.85, structure: S.protoporphyrin },
+    {
+      id: 'haem',
+      name: 'Häm',
+      x: 0.5,
+      y: 0.96,
+      structure: S.haem,
+      branches: [
+        { to: 'Hämoglobin', note: 'Einbau in Hb, Myoglobin, Cytochrome' },
+        { to: 'Häm-Abbau', note: 'nach Ende der Lebensdauer → Bilirubin' },
+      ],
+    },
+  ],
+  reactions: [
+    {
+      id: 'hs1',
+      from: 'succinyl-coa',
+      to: 'ala',
+      enzyme: 'ALA-Synthase',
+      reversible: false,
+      tags: ['kondensation', 'decarboxylierung'],
+      cofactors: [
+        { name: 'Glycin', dir: 'in' },
+        { name: 'CoA-SH', dir: 'out' },
+        { name: 'CO2', dir: 'out' },
+      ],
+      note: 'Schrittmacher (Mitochondrium). Coenzym PLP (Vit. B6). Durch Häm rückgekoppelt gehemmt (Endprodukthemmung).',
+    },
+    {
+      id: 'hs2',
+      from: 'ala',
+      to: 'pbg',
+      enzyme: 'ALA-Dehydratase',
+      reversible: false,
+      tags: ['kondensation'],
+      cofactors: [{ name: 'H2O', dir: 'out' }],
+      note: 'Cytosol, Zn²⁺-abhängig. 2 ALA → 1 Porphobilinogen (Pyrrolring). Durch Blei gehemmt.',
+    },
+    {
+      id: 'hs3',
+      from: 'pbg',
+      to: 'uroporphyrinogen',
+      enzyme: 'PBG-Desaminase',
+      reversible: false,
+      tags: ['kondensation'],
+      cofactors: [{ name: 'NH4+', dir: 'out' }],
+      note: 'Cytosol. 4 PBG → Tetrapyrrol; die Uroporphyrinogen-III-Synthase legt die korrekte Ringstruktur fest.',
+    },
+    {
+      id: 'hs4',
+      from: 'uroporphyrinogen',
+      to: 'coproporphyrinogen',
+      enzyme: 'Uroporphyrinogen-Decarboxylase',
+      reversible: false,
+      tags: ['decarboxylierung'],
+      cofactors: [{ name: 'CO2', dir: 'out' }],
+      note: 'Cytosol. Acetat-Seitenketten → Methyl (Decarboxylierung).',
+    },
+    {
+      id: 'hs5',
+      from: 'coproporphyrinogen',
+      to: 'protoporphyrin',
+      enzyme: 'Copro-/Protoporphyrinogen-Oxidase',
+      reversible: false,
+      tags: ['redox', 'decarboxylierung'],
+      cofactors: [{ name: 'CO2', dir: 'out' }],
+      note: 'Mitochondrium. Oxidation zum konjugierten Protoporphyrin IX (rot).',
+    },
+    {
+      id: 'hs6',
+      from: 'protoporphyrin',
+      to: 'haem',
+      enzyme: 'Ferrochelatase',
+      reversible: false,
+      tags: ['kondensation'],
+      cofactors: [{ name: 'Fe²⁺', dir: 'in' }],
+      note: 'Mitochondrium. Baut zentrales Fe²⁺ ein. Durch Blei gehemmt.',
+    },
+  ],
+  net: [
+    { label: 'Succinyl-CoA + Glycin', value: '8 + 8', detail: 'pro Häm (Bausteine)' },
+    { label: 'Häm', value: '1×', detail: 'Protoporphyrin IX + Fe²⁺' },
+    { label: 'Schrittmacher', value: 'ALA-Synthase', detail: 'durch Häm gehemmt (Feedback)' },
+    { label: 'Ort', value: 'Mito ↔ Cytosol', detail: 'Start & Ende mitochondrial' },
+    { label: 'Blei hemmt', value: '2 Enzyme', detail: 'ALA-Dehydratase & Ferrochelatase' },
+  ],
+  sources: [
+    'https://en.wikipedia.org/wiki/Heme#Biosynthesis',
+    'https://www.amboss.com/de/wissen/haem-und-porphyrinstoffwechsel',
+  ],
+}

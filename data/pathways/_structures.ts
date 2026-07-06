@@ -60,7 +60,22 @@ export const S = {
   ribulose5p: j('CH₂OH', '|', 'C=O', '|', 'H–C–OH', '|', 'H–C–OH', '|', 'CH₂–O–Ⓟ'),
   ribose5p: j('CHO', '|', 'H–C–OH', '|', 'H–C–OH', '|', 'H–C–OH', '|', 'CH₂–O–Ⓟ'),
 
-  // --- Atmungskette (soweit als kleine Moleküle sinnvoll) ---
+  // --- Atmungskette (Elektronencarrier: schematisch) ---
   wasser: j('H–O–H'),
   ubichinon: j('   O', '   ‖', '[Chinon]–CH₃', '   ‖   ·', '   O   (CH₂–CH=', '       C(CH₃)–CH₂)ₙ'),
+  nadh: j('[Nicotinamid]–H', '|', 'Ribose–Ⓟ', '|', 'Ⓟ–Ribose–Adenin', '(NAD⁺ + 2 H)'),
+  fadh2: j('[Isoalloxazin]–H₂', '|', 'Ribitol', '|', 'Ⓟ–Ⓟ', '|', 'Ribose–Adenin', '(FAD + 2 H)'),
+  cytc: j('Häm c (Fe²⁺/³⁺)', 'kovalent (2 Cys)', 'an Protein', '– Elektronen-', '  überträger'),
+
+  // --- Häm-Stoffwechsel ---
+  haem: j('[Tetrapyrrol]', '4 Pyrrol-Ringe', '(Protoporphyrin IX)', '+ Fe²⁺ zentral', '= Häm'),
+  ala: j('COO⁻', '|', 'CH₂', '|', 'CH₂', '|', 'C=O', '|', 'CH₂–NH₃⁺'),
+  pbg: j('[Pyrrol-Ring]', '–CH₂–NH₃⁺', '–CH₂–COO⁻', '–CH₂CH₂–COO⁻'),
+  uroporphyrinogen: j('[Tetrapyrrol]', '(Porphyrinogen)', '4 Acetat +', '4 Propionat'),
+  coproporphyrinogen: j('[Tetrapyrrol]', '(Porphyrinogen)', '4 Methyl +', '4 Propionat'),
+  protoporphyrin: j('[Tetrapyrrol]', '(konjugiert)', '4 Methyl, 2 Vinyl,', '2 Propionat'),
+  biliverdin: j('[offenes', ' Tetrapyrrol]', 'Biliverdin (grün)'),
+  bilirubin: j('[offenes', ' Tetrapyrrol]', 'Bilirubin', '(gelb, lipophil)'),
+  bilirubinGlucuronid: j('Bilirubin', '+ 2 Glucuronsäure', '(wasserlöslich,', ' „direkt“)'),
+  sterkobilin: j('[offenes', ' Tetrapyrrol]', 'Urobilin/', 'Sterkobilin'),
 }
