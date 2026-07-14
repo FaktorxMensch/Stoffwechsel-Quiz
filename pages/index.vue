@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { pathwayList } from '~/data/pathways'
 import { overviewVideo } from '~/data/pathways/_videos'
+import { downloadAnkiDeck } from '~/utils/anki'
 
 const router = useRouter()
 const hint = ref<string | null>(null)
@@ -44,6 +45,17 @@ function onHint(msg: string) {
           <button class="btn primary" @click="open(p.id)">Lernen →</button>
         </p>
         <p class="muted small">Weitere Wege folgen Schritt für Schritt.</p>
+      </div>
+
+      <div class="card">
+        <h2>📇 Anki-Deck</h2>
+        <p class="small">
+          Alle Fragen als Anki-Karten – Oberdeck „Stoffwechselwege“, je Weg ein Unterdeck.
+        </p>
+        <button class="btn primary" @click="downloadAnkiDeck">Anki-Deck herunterladen</button>
+        <p class="muted small" style="margin-bottom: 0">
+          In Anki: Datei → Importieren → die .txt wählen (Felder Tab-getrennt, HTML an).
+        </p>
       </div>
 
       <div class="card">

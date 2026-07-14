@@ -1,68 +1,72 @@
-// Gemeinsame kondensierte Strukturformeln (Monospace, mehrzeilig).
-// Ⓟ = Phosphatgruppe (–PO₃²⁻/–O–PO₃²⁻). Werden von mehreren Wegen genutzt.
+// Gemeinsame kondensierte Strukturformeln (Monospace, mehrzeilig, linksbündig).
+// Konvention: Backbone-Atom und die vertikalen Bindungen ('|'/'‖') stehen in
+// derselben Spalte. Zwei Stile:
+//   - einfache Ketten: Backbone in Spalte 0, Substituenten nur nach rechts, z.B. 'CH(OH)'
+//   - Fischer-Projektionen: Backbone in Spalte 3 (linkes Feld für 'H–'/'HO–'), Bindungen '   |'
+// Ⓟ = Phosphatgruppe (–PO₃²⁻/–O–PO₃²⁻).
 
 const j = (...lines: string[]) => lines.join('\n')
 
 export const S = {
   // --- C3 / zentrale Metabolite ---
   pyruvat: j('COO⁻', '|', 'C=O', '|', 'CH₃'),
-  lactat: j('COO⁻', '|', 'H–C–OH', '|', 'CH₃'),
+  lactat: j('COO⁻', '|', 'CH(OH)', '|', 'CH₃'),
   pep: j('COO⁻', '|', 'C–O–Ⓟ', '‖', 'CH₂'),
   acetylCoA: j('CH₃', '|', 'C=O', '|', 'S–CoA'),
 
-  // --- Triosephosphate ---
+  // --- Triosephosphate (Fischer) ---
   dhap: j('CH₂–O–Ⓟ', '|', 'C=O', '|', 'CH₂OH'),
-  gap: j('CHO', '|', 'H–C–OH', '|', 'CH₂–O–Ⓟ'),
-  bpg13: j('C(=O)–O–Ⓟ', '|', 'H–C–OH', '|', 'CH₂–O–Ⓟ'),
-  pg3: j('COO⁻', '|', 'H–C–OH', '|', 'CH₂–O–Ⓟ'),
-  pg2: j('COO⁻', '|', 'H–C–O–Ⓟ', '|', 'CH₂OH'),
+  gap: j('   CHO', '   |', ' H–C–OH', '   |', '   CH₂–O–Ⓟ'),
+  bpg13: j('   C(=O)–O–Ⓟ', '   |', ' H–C–OH', '   |', '   CH₂–O–Ⓟ'),
+  pg3: j('   COO⁻', '   |', ' H–C–OH', '   |', '   CH₂–O–Ⓟ'),
+  pg2: j('   COO⁻', '   |', ' H–C–O–Ⓟ', '   |', '   CH₂OH'),
 
   // --- Hexosen / Hexosephosphate (Fischer) ---
-  glucose: j('CHO', '|', 'H–C–OH', '|', 'HO–C–H', '|', 'H–C–OH', '|', 'H–C–OH', '|', 'CH₂OH'),
-  g6p: j('CHO', '|', 'H–C–OH', '|', 'HO–C–H', '|', 'H–C–OH', '|', 'H–C–OH', '|', 'CH₂–O–Ⓟ'),
-  f6p: j('CH₂OH', '|', 'C=O', '|', 'HO–C–H', '|', 'H–C–OH', '|', 'H–C–OH', '|', 'CH₂–O–Ⓟ'),
-  f16bp: j('CH₂–O–Ⓟ', '|', 'C=O', '|', 'HO–C–H', '|', 'H–C–OH', '|', 'H–C–OH', '|', 'CH₂–O–Ⓟ'),
-  glucose1p: j('CHO', '|', 'H–C–O–Ⓟ', '|', 'HO–C–H', '|', 'H–C–OH', '|', 'H–C–OH', '|', 'CH₂OH'),
+  glucose: j('   CHO', '   |', ' H–C–OH', '   |', 'HO–C–H', '   |', ' H–C–OH', '   |', ' H–C–OH', '   |', '   CH₂OH'),
+  g6p: j('   CHO', '   |', ' H–C–OH', '   |', 'HO–C–H', '   |', ' H–C–OH', '   |', ' H–C–OH', '   |', '   CH₂–O–Ⓟ'),
+  f6p: j('   CH₂OH', '   |', '   C=O', '   |', 'HO–C–H', '   |', ' H–C–OH', '   |', ' H–C–OH', '   |', '   CH₂–O–Ⓟ'),
+  f16bp: j('   CH₂–O–Ⓟ', '   |', '   C=O', '   |', 'HO–C–H', '   |', ' H–C–OH', '   |', ' H–C–OH', '   |', '   CH₂–O–Ⓟ'),
+  glucose1p: j('   CHO', '   |', ' H–C–O–Ⓟ', '   |', 'HO–C–H', '   |', ' H–C–OH', '   |', ' H–C–OH', '   |', '   CH₂OH'),
   udpGlucose: j('Glucose', '|', 'O–Ⓟ–Ⓟ', '|', 'Uridin', '(UDP-aktiviert)'),
   glykogen: j('[–Glucose–]ₙ', 'α-1,4- &', 'α-1,6-', 'glykosidisch'),
 
-  // --- Citratzyklus-Metabolite (C4/C5/C6) ---
+  // --- Citratzyklus-Metabolite ---
   oxalacetat: j('COO⁻', '|', 'C=O', '|', 'CH₂', '|', 'COO⁻'),
   akg: j('COO⁻', '|', 'CH₂', '|', 'CH₂', '|', 'C=O', '|', 'COO⁻'),
 
   // --- Aminosäurestoffwechsel ---
-  glutamat: j('COO⁻', '|', 'H–C–NH₃⁺', '|', 'CH₂', '|', 'CH₂', '|', 'COO⁻'),
-  aminosaeureGeneric: j('COO⁻', '|', 'H–C–NH₃⁺', '|', 'R'),
+  glutamat: j('COO⁻', '|', 'CH(NH₃⁺)', '|', 'CH₂', '|', 'CH₂', '|', 'COO⁻'),
+  aminosaeureGeneric: j('COO⁻', '|', 'CH(NH₃⁺)', '|', 'R'),
 
   // --- Harnstoffzyklus ---
-  ornithin: j('COO⁻', '|', 'H–C–NH₃⁺', '|', '(CH₂)₃', '|', 'NH₃⁺'),
-  citrullin: j('COO⁻', '|', 'H–C–NH₃⁺', '|', '(CH₂)₃', '|', 'NH', '|', 'C=O', '|', 'NH₂'),
-  arginin: j('COO⁻', '|', 'H–C–NH₃⁺', '|', '(CH₂)₃', '|', 'NH', '|', 'C=NH₂⁺', '|', 'NH₂'),
+  ornithin: j('COO⁻', '|', 'CH(NH₃⁺)', '|', '(CH₂)₃', '|', 'NH₃⁺'),
+  citrullin: j('COO⁻', '|', 'CH(NH₃⁺)', '|', '(CH₂)₃', '|', 'NH', '|', 'C=O', '|', 'NH₂'),
+  arginin: j('COO⁻', '|', 'CH(NH₃⁺)', '|', '(CH₂)₃', '|', 'NH', '|', 'C=NH₂⁺', '|', 'NH₂'),
   argininosuccinat: j('Arg–NH', '|', 'CH–COO⁻', '|', 'CH₂', '|', 'COO⁻', '(Arginin +', 'Succinat)'),
 
   // --- Lipidstoffwechsel ---
-  malonylCoA: j('⁻OOC', '|', 'CH₂', '|', 'C=O', '|', 'S–CoA'),
+  malonylCoA: j('COO⁻', '|', 'CH₂', '|', 'C=O', '|', 'S–CoA'),
   palmitat: j('CH₃', '|', '(CH₂)₁₄', '|', 'COO⁻'),
   acylCoA: j('R', '|', 'CH₂', '|', 'CH₂', '|', 'C=O', '|', 'S–CoA'),
-  enoylCoA: j('R–CH', '‖', 'CH', '|', 'C=O', '|', 'S–CoA'),
-  hydroxyacylCoA: j('R', '|', 'H–C–OH', '|', 'CH₂', '|', 'C=O', '|', 'S–CoA'),
+  enoylCoA: j('R', '|', 'CH', '‖', 'CH', '|', 'C=O', '|', 'S–CoA'),
+  hydroxyacylCoA: j('R', '|', 'CH(OH)', '|', 'CH₂', '|', 'C=O', '|', 'S–CoA'),
   ketoacylCoA: j('R', '|', 'C=O', '|', 'CH₂', '|', 'C=O', '|', 'S–CoA'),
 
   // --- Ketonkörper ---
   acetoacetylCoA: j('CH₃', '|', 'C=O', '|', 'CH₂', '|', 'C=O', '|', 'S–CoA'),
-  hmgCoA: j('⁻OOC–CH₂', '|', 'HO–C–CH₃', '|', 'CH₂', '|', 'C=O', '|', 'S–CoA'),
+  hmgCoA: j('COO⁻', '|', 'CH₂', '|', 'C(OH)(CH₃)', '|', 'CH₂', '|', 'C=O', '|', 'S–CoA'),
   acetoacetat: j('CH₃', '|', 'C=O', '|', 'CH₂', '|', 'COO⁻'),
-  hydroxybutyrat: j('CH₃', '|', 'H–C–OH', '|', 'CH₂', '|', 'COO⁻'),
+  hydroxybutyrat: j('CH₃', '|', 'CH(OH)', '|', 'CH₂', '|', 'COO⁻'),
 
   // --- Pentosephosphatweg ---
-  lacton: j('O=C──O', '|    |', 'H–C–OH│', 'HO–C–H│', 'H–C–OH│', 'H–C───┘', '|', 'CH₂–O–Ⓟ'),
-  phosphogluconat: j('COO⁻', '|', 'H–C–OH', '|', 'HO–C–H', '|', 'H–C–OH', '|', 'H–C–OH', '|', 'CH₂–O–Ⓟ'),
-  ribulose5p: j('CH₂OH', '|', 'C=O', '|', 'H–C–OH', '|', 'H–C–OH', '|', 'CH₂–O–Ⓟ'),
-  ribose5p: j('CHO', '|', 'H–C–OH', '|', 'H–C–OH', '|', 'H–C–OH', '|', 'CH₂–O–Ⓟ'),
+  lacton: j(' O=C───O', '    |   |', ' H–C–OH │', 'HO–C–H  │', ' H–C–OH │', ' H–C────┘', '    |', '   CH₂–O–Ⓟ'),
+  phosphogluconat: j('   COO⁻', '   |', ' H–C–OH', '   |', 'HO–C–H', '   |', ' H–C–OH', '   |', ' H–C–OH', '   |', '   CH₂–O–Ⓟ'),
+  ribulose5p: j('   CH₂OH', '   |', '   C=O', '   |', ' H–C–OH', '   |', ' H–C–OH', '   |', '   CH₂–O–Ⓟ'),
+  ribose5p: j('   CHO', '   |', ' H–C–OH', '   |', ' H–C–OH', '   |', ' H–C–OH', '   |', '   CH₂–O–Ⓟ'),
 
   // --- Atmungskette (Elektronencarrier: schematisch) ---
   wasser: j('H–O–H'),
-  ubichinon: j('   O', '   ‖', '[Chinon]–CH₃', '   ‖   ·', '   O   (CH₂–CH=', '       C(CH₃)–CH₂)ₙ'),
+  ubichinon: j('   O', '   ‖', '[Chinon]–CH₃', '   ‖', '   O', '+ (Isopren)ₙ'),
   nadh: j('[Nicotinamid]–H', '|', 'Ribose–Ⓟ', '|', 'Ⓟ–Ribose–Adenin', '(NAD⁺ + 2 H)'),
   fadh2: j('[Isoalloxazin]–H₂', '|', 'Ribitol', '|', 'Ⓟ–Ⓟ', '|', 'Ribose–Adenin', '(FAD + 2 H)'),
   cytc: j('Häm c (Fe²⁺/³⁺)', 'kovalent (2 Cys)', 'an Protein', '– Elektronen-', '  überträger'),
@@ -92,15 +96,15 @@ export const S = {
   gmp: j('Guanin', '(Purin)', '|', 'Ribose–Ⓟ'),
 
   // --- Pyrimidinbiosynthese ---
-  carbamoylphosphat: j('H₂N–C=O', '|', 'O–Ⓟ'),
-  carbamoylaspartat: j('H₂N–C(=O)–NH', '|', 'CH–COO⁻', '|', 'CH₂–COO⁻'),
+  carbamoylphosphat: j('H₂N', '|', 'C=O', '|', 'O–Ⓟ'),
+  carbamoylaspartat: j('H₂N', '|', 'C=O', '|', 'NH', '|', 'CH–COO⁻', '|', 'CH₂–COO⁻'),
   orotat: j('[Pyrimidin-', ' Ring]', 'Orotsäure', '–COO⁻'),
   ump: j('Uracil', '(Pyrimidin)', '|', 'Ribose–Ⓟ'),
   ctp: j('Cytosin', '(Pyrimidin)', '|', 'Ribose–Ⓟ–Ⓟ–Ⓟ'),
 
   // --- Katecholaminsynthese ---
-  tyrosin: j('HO–[Benzol]', '|', 'CH₂', '|', 'CH–NH₃⁺', '|', 'COO⁻'),
-  ldopa: j('HO–[Benzol]–OH', '|', 'CH₂', '|', 'CH–NH₃⁺', '|', 'COO⁻'),
+  tyrosin: j('HO–[Benzol]', '|', 'CH₂', '|', 'CH(NH₃⁺)', '|', 'COO⁻'),
+  ldopa: j('HO–[Benzol]–OH', '|', 'CH₂', '|', 'CH(NH₃⁺)', '|', 'COO⁻'),
   dopamin: j('HO–[Benzol]–OH', '|', 'CH₂', '|', 'CH₂–NH₃⁺'),
   noradrenalin: j('HO–[Benzol]–OH', '|', 'CH(OH)', '|', 'CH₂–NH₃⁺'),
   adrenalin: j('HO–[Benzol]–OH', '|', 'CH(OH)', '|', 'CH₂–NH₂⁺–CH₃'),
